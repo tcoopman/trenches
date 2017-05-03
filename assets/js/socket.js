@@ -56,8 +56,7 @@ var context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-context.fillRect(0,0,canvas.width,400);
-
+drawScenery();
 
 
 
@@ -71,8 +70,20 @@ function join(resp) {
   context.fillText('Joined Succesfully', 200, 200);
 }
 
+var playerId = null;
+function playerJoined(resp) {
+  console.log("Player joined", resp);
+  drawScenery();
+  context.beginPath();
+  context.font = "24px Helvetica";
+  context.fillStyle = 'white';
+  playerId = resp.id;
+  context.fillText('You are player #' + playerId, 200, 200);
+}
+
 function drawScenery() {
   context.beginPath();
+  context.fillStyle = 'black';
   context.fillRect(0,0,canvas.width,400);
 }
 
@@ -94,7 +105,9 @@ socket.connect()
 let channel = socket.channel("room:game", {})
 channel.join()
   .receive("ok", join)
-  .receive("error", resp => { console.log("Unable to join", resp) })
-  .receive("tick", tick)
+  .receive("error", resp => { console.log("Unable to join", resp) });
+
+channel.on("player_joined", playerJoined);
+channel.on("tick", tick);
 
 export default socket
