@@ -71,6 +71,23 @@ function join(resp) {
   context.fillText('Joined Succesfully', 200, 200);
 }
 
+function drawScenery() {
+  context.beginPath();
+  context.fillRect(0,0,canvas.width,400);
+}
+
+var position = 0;
+function drawState() {
+  context.beginPath();
+  context.fillStyle = 'white';
+  context.fillRect(position++,0,10,10);
+}
+
+function tick() {
+  drawScenery();
+  drawState();
+}
+
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
@@ -78,5 +95,6 @@ let channel = socket.channel("room:game", {})
 channel.join()
   .receive("ok", join)
   .receive("error", resp => { console.log("Unable to join", resp) })
+  .receive("tick", tick)
 
 export default socket
