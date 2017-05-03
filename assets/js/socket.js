@@ -51,12 +51,32 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
 
+var canvas = document.getElementById('canvas');
+var context = canvas.getContext('2d');
+canvas.width = window.innerWidth;
+canvas.height = window.innerHeight;
+
+context.fillRect(0,0,canvas.width,400);
+
+
+
+
+
+
+function join(resp) {
+  console.log("Joined successfully", resp);
+  context.beginPath();
+  context.font = "24px Helvetica";
+  context.fillStyle = 'white';
+  context.fillText('Joined Succesfully', 200, 200);
+}
+
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
 let channel = socket.channel("room:game", {})
 channel.join()
-  .receive("ok", resp => { console.log("Joined successfully", resp) })
+  .receive("ok", join)
   .receive("error", resp => { console.log("Unable to join", resp) })
 
 export default socket
