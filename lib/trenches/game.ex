@@ -8,6 +8,8 @@ defmodule Trenches.Unit do
         %{unit | position: position + 2}
       "tank" ->
         %{unit | position: position + 1}
+      _ ->
+        %{unit | position: position}
     end
   end
 end
