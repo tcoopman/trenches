@@ -17,7 +17,7 @@ defmodule Trenches.Player do
     %{player | units: [unit | units]}
   end
 
-  def move_units(%Players{units: units} = player) do
+  def move_units(%Player{units: units} = player) do
     units = Enum.map(units, fn unit -> 
       Unit.move(unit)
     end)
@@ -97,7 +97,7 @@ defmodule Trenches.Game do
     |> Enum.map(fn {id, player} -> 
       {id, Player.move_units(player)}
     end)
-    |> Map.from_list
+    |> Map.new
 
     players
   end
