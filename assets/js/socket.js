@@ -59,8 +59,14 @@ canvas.height = window.innerHeight;
 drawScenery();
 
 
+document.addEventListener('keyup', addSoldier);
 
-
+function addSoldier(evt) {
+  console.log(evt.keyCode);
+  if(evt.keyCode=32) {
+    channel.push("new_unit", {'id': playerId, 'type': 'soldier'});
+  }
+}
 
 function join(resp) {
   console.log("Joined successfully", resp);
@@ -87,16 +93,23 @@ function drawScenery() {
   context.fillRect(0,0,canvas.width,400);
 }
 
+setInterval(tick, 500);
+
 var position = 0;
 function drawState() {
-  context.beginPath();
-  context.fillStyle = 'white';
-  context.fillRect(position++,0,10,10);
+  drawUnit({'type': 'soldier', 'position': position++})
 }
 
-function tick() {
+function drawUnit(unit) {
+  context.beginPath();
+  context.fillStyle = 'white';
+  context.fillRect(position++,200,10,10);
+}
+
+
+function tick(resp) {
   drawScenery();
-  drawState();
+  drawState(resp);
 }
 
 socket.connect()
