@@ -98,8 +98,6 @@ defmodule Trenches.Game do
       {id, Player.move_units(player)}
     end)
     |> Map.new
-
-    players
   end
 
   defp schedule_work() do
