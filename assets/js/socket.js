@@ -65,6 +65,10 @@ context.fillRect(0,0,canvas.width,400);
 
 function join(resp) {
   console.log("Joined successfully", resp);
+  context.beginPath();
+  context.font = "24px Helvetica";
+  context.fillStyle = 'white';
+  context.fillText('Joined Succesfully', 200, 200);
 }
 
 socket.connect()
