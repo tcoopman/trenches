@@ -56,14 +56,11 @@ var context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
-drawScenery();
-
-
 document.addEventListener('keyup', addSoldier);
 
 function addSoldier(evt) {
   console.log(evt.which);
-  if(evt.keyCode == 32) {
+  if(evt.which == 32) {
     channel.push("new_unit", {'id': playerId, 'type': 'soldier'});
   }
 }
@@ -93,21 +90,21 @@ function drawScenery() {
   context.fillRect(0,0,canvas.width,400);
 }
 
-setInterval(tick, 500);
+// setInterval(tick, 500);
 
-var position = 0;
 function drawState() {
-  drawUnit({'type': 'soldier', 'position': position++})
+  // drawUnit({'type': 'soldier', 'position': position++})
 }
 
 function drawUnit(unit) {
   context.beginPath();
   context.fillStyle = 'white';
-  context.fillRect(position++,200,10,10);
+  // context.fillRect(position++,200,10,10);
 }
 
 
 function tick(resp) {
+  console.log('tick');
   drawScenery();
   drawState(resp);
 }
