@@ -83,15 +83,14 @@ defmodule Trenches.Game do
       player = Player.add_unit(player, unit)
     end)
     state = %{state | players: players}
+    publish(state)
     {:reply, players, state}
   end
 
   def handle_info(:tick, %{subscriber: subscriber, players: players} = state) do
     players = tick(players)
-    if subscriber != nil do
-      send(subscriber, {:tick, players})
-    end
     state = %{state | players: players}
+    publish(state)
     schedule_work()
     {:noreply, state}
   end
@@ -107,5 +106,11 @@ defmodule Trenches.Game do
 
   defp schedule_work() do
     Process.send_after(self(), :tick, 500) # In 2 hours
+  end
+
+  defp publish(%{subscriber: subscriber, players: players} = state) do
+    if subscriber != nil do
+      send(subscriber, {:tick, players})
+    end
   end
 end
