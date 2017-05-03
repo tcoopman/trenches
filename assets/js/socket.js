@@ -60,7 +60,7 @@ document.addEventListener('keyup', addSoldier);
 
 function addSoldier(evt) {
   console.log(evt.which);
-  if(evt.which == 32) {
+  if(evt.which == 83) {
     channel.push("new_unit", {'id': playerId, 'type': 'soldier'});
   }
   if(evt.which == 84) {
@@ -101,24 +101,28 @@ function drawState(resp) {
     var player = resp.players[i];
     for (var j = 0; j < player.units.length; j++) {
       var unit = player.units[j];
-      drawUnit(unit);
+      drawUnit(unit, i%2===0);
     }
   }
 }
 
-function positionOf(unit) {
-  return unit.position;
+function positionOf(unit, goingEast) {
+  if(goingEast) {
+    return (unit.position/100) * canvas.width;
+  } else {
+    return ((100 - unit.position)/100) * canvas.width;
+  }
 }
 
-function drawUnit(unit) {
+function drawUnit(unit, direction) {
   context.beginPath();
   if(unit.type == 'soldier') {
     context.fillStyle = 'white';
-    context.fillRect(positionOf(unit),200,10,10);
+    context.fillRect(positionOf(unit, direction),200,10,10);
   }
   if(unit.type == 'tank') {
     context.fillStyle = 'green';
-    context.fillRect(positionOf(unit),200,20,15);
+    context.fillRect(positionOf(unit, direction),200,20,15);
   }
 }
 
