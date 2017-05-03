@@ -62,8 +62,8 @@ drawScenery();
 document.addEventListener('keyup', addSoldier);
 
 function addSoldier(evt) {
-  console.log(evt.keyCode);
-  if(evt.keyCode=32) {
+  console.log(evt.which);
+  if(evt.keyCode == 32) {
     channel.push("new_unit", {'id': playerId, 'type': 'soldier'});
   }
 }
