@@ -1,5 +1,10 @@
 defmodule Trenches.Unit do
-  defstruct [:type]
+  alias __MODULE__
+  defstruct [:type, position: 0]
+
+  def move(%Unit{position: position} = unit) do
+    %{unit | position: position + 1}
+  end
 end
 
 defmodule Trenches.Player do
@@ -70,11 +75,17 @@ defmodule Trenches.Game do
   end
 
   def handle_info(:tick, %{subscribers: subscribers, players: players} = state) do
+    players = tick(players)
     Enum.each(subscribers, fn subscriber -> 
       send(subscriber, {:tick, players})
     end)
+    state = %{state | players: players}
     schedule_work()
     {:noreply, state}
+  end
+
+  defp tick(players) do
+    players
   end
 
   defp schedule_work() do
