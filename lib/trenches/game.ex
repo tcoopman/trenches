@@ -2,8 +2,13 @@ defmodule Trenches.Unit do
   alias __MODULE__
   defstruct [:type, position: 0]
 
-  def move(%Unit{position: position} = unit) do
-    %{unit | position: position + 1}
+  def move(%Unit{position: position, type: type} = unit) do
+    case type do
+      "soldier" -> 
+        %{unit | position: position + 2}
+      "tank" ->
+        %{unit | position: position + 1}
+    end
   end
 end
 
