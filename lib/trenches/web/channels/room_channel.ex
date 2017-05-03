@@ -10,6 +10,11 @@ defmodule Trenches.Web.RoomChannel do
     {:ok, socket}
   end
 
+  def handle_in("new_unit", %{"type" => type, "id" => id}, socket) do
+    Game.new_unit(id, type)
+    {:reply, :ok, socket}
+  end
+
   def handle_info({:after_join, id}, socket) do
     push socket, "player_joined", %{id: id}
     {:noreply, socket}

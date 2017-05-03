@@ -1,17 +1,30 @@
-defmodule Trenches.Player do
-  defstruct [:id, units: []]
+defmodule Trenches.Unit do
+  defstruct [:type]
 end
+
+defmodule Trenches.Player do
+  alias __MODULE__
+  alias Trenches.Unit
+
+  defstruct [:id, units: []]
+
+  def add_unit(%Player{units: units} = player, %Unit{} = unit) do
+    %{player | units: [unit | units]}
+  end
+end
+
 defmodule Trenches.Game do
   use GenServer
 
   alias Trenches.Player
+  alias Trenches.Unit
 
   def start_link() do
     GenServer.start_link(__MODULE__, %{}, name: :game)
   end
 
   def init(state) do
-    state = %{unique_id: 0, players: [], subscribers: MapSet.new}
+    state = %{unique_id: 0, players: %{}, subscribers: MapSet.new}
     schedule_work()
     {:ok, state}
   end
@@ -21,7 +34,7 @@ defmodule Trenches.Game do
   end
 
   def new_unit(id, type) do
-
+    GenServer.call(:game, {:new_unit, id, type})
   end
 
   def subscribe(subscriber) do
@@ -33,8 +46,9 @@ defmodule Trenches.Game do
   def handle_call(:join, _from, %{unique_id: id, players: players} = state) do
     if id < 2 do
       player = %Player{id: id}
+      players = Map.put(players, id, player)
     end
-    state = %{state | unique_id: (id+1), players: ([player | players])}
+    state = %{state | unique_id: (id+1), players: players}
 
     {:reply, id, state}
   end
@@ -43,6 +57,16 @@ defmodule Trenches.Game do
     subscribers = MapSet.put(subscribers, subscriber)
     state = %{state | subscribers: subscribers}
     {:reply, state, state}
+  end
+
+  def handle_call({:new_unit, id, type}, _from, %{players: players} = state) do
+    players = Map.update!(players, id, fn player -> 
+      unit = %Unit{type: type}
+      player = Player.add_unit(player, unit)
+    end)
+    state = %{state | players: players}
+    send(self(), :tick)
+    {:reply, players, state}
   end
 
   def handle_info(:tick, %{subscribers: subscribers, players: players} = state) do
