@@ -63,6 +63,9 @@ function addSoldier(evt) {
   if(evt.which == 32) {
     channel.push("new_unit", {'id': playerId, 'type': 'soldier'});
   }
+  if(evt.which == 84) {
+    channel.push("new_unit", {'id': playerId, 'type': 'tank'});
+  }
 }
 
 function join(resp) {
