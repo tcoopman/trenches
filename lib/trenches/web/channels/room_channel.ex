@@ -21,7 +21,7 @@ defmodule Trenches.Web.RoomChannel do
   end
 
   def handle_info({:tick, players}, socket) do
-    broadcast socket, "tick", %{}
+    broadcast socket, "tick", %{players: Map.values(players)}
     {:noreply, socket}
   end
 end
