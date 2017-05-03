@@ -92,14 +92,31 @@ function drawScenery() {
 
 // setInterval(tick, 500);
 
-function drawState() {
-  // drawUnit({'type': 'soldier', 'position': position++})
+function drawState(resp) {
+  console.log(resp);
+  for (var i = 0; i < resp.players.length; i++) {
+    var player = resp.players[i];
+    for (var j = 0; j < player.units.length; j++) {
+      var unit = player.units[j];
+      drawUnit(unit);
+    }
+  }
+}
+
+function positionOf(unit) {
+  return unit.position;
 }
 
 function drawUnit(unit) {
   context.beginPath();
-  context.fillStyle = 'white';
-  // context.fillRect(position++,200,10,10);
+  if(unit.type == 'soldier') {
+    context.fillStyle = 'white';
+    context.fillRect(positionOf(unit),200,10,10);
+  }
+  if(unit.type == 'tank') {
+    context.fillStyle = 'green';
+    context.fillRect(positionOf(unit),200,20,15);
+  }
 }
 
 
