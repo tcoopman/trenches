@@ -4,6 +4,7 @@ defmodule Trenches.Web.RoomChannel do
   alias Trenches.Game
 
   def join("room:game", _message, socket) do
+    Game.subscribe(self())
     id = Game.join()
     send(self, {:after_join, id})
     {:ok, socket}
@@ -14,5 +15,8 @@ defmodule Trenches.Web.RoomChannel do
     {:noreply, socket}
   end
 
-
+  def handle_info({:tick, players}, socket) do
+    broadcast socket, "tick", %{}
+    {:noreply, socket}
+  end
 end
