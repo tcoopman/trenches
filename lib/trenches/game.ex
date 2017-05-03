@@ -1,16 +1,17 @@
 defmodule Trenches.Unit do
   alias __MODULE__
-  defstruct [:type, position: 0]
+  defstruct [:type, position: 0, strength: 0, cost: 0, speed: 0]
 
-  def move(%Unit{position: position, type: type} = unit) do
-    case type do
-      "soldier" -> 
-        %{unit | position: position + 2}
-      "tank" ->
-        %{unit | position: position + 1}
-      _ ->
-        %{unit | position: position}
-    end
+  def new("soldier") do
+    %Unit{type: :soldier, position: 0, strength: 100, cost: 300, speed: 2}
+  end
+  def new("tank") do
+    %Unit{type: :tank, position: 0, strength: 500, cost: 500, speed: 1}
+  end
+  def new(_), do: :error
+
+  def move(%Unit{position: position, speed: speed} = unit) do
+    %{unit | position: position + speed}
   end
 end
 
@@ -18,10 +19,19 @@ defmodule Trenches.Player do
   alias __MODULE__
   alias Trenches.Unit
 
-  defstruct [:id, units: []]
+  defstruct [:id, units: [], hitpoints: 100, money: 1000]
 
-  def add_unit(%Player{units: units} = player, %Unit{} = unit) do
-    %{player | units: [unit | units]}
+  def add_unit(%Player{units: units} = player, unit_type) do
+    case Unit.new(unit_type) do
+      %Unit{} = u ->
+        case player.money - u.cost < 0 do
+          true -> player
+          false ->
+            %{player | units: [u | units], money: player.money - u.cost}
+        end
+      :error -> 
+        player
+    end
   end
 
   def move_units(%Player{units: units} = player) do
@@ -79,8 +89,7 @@ defmodule Trenches.Game do
 
   def handle_call({:new_unit, id, type}, _from, %{players: players} = state) do
     players = Map.update!(players, id, fn player -> 
-      unit = %Unit{type: type}
-      player = Player.add_unit(player, unit)
+      player = Player.add_unit(player, type)
     end)
     state = %{state | players: players}
     publish(state)
