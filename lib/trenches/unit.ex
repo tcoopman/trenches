@@ -1,5 +1,6 @@
 defmodule Trenches.Unit do
   alias __MODULE__
+  # TODO units will need an id, to update them
   defstruct [:type, position: 0, strength: 0, cost: 0, speed: 0]
 
   def new("soldier") do

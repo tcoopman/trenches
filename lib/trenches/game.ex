@@ -31,7 +31,7 @@ defmodule Trenches.Game do
 
   def handle_call(:join, _from, %{unique_id: id, players: players} = state) do
     if id < 2 do
-      player = %Player{id: id}
+      player = Player.new(id)
       players = Map.put(players, id, player)
       state = %{state | unique_id: (id+1), players: players}
       {:reply, {:ok, id}, state}
