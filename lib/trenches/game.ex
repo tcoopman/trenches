@@ -23,11 +23,12 @@ defmodule Trenches.Player do
 
   def add_unit(%Player{units: units} = player, unit_type) do
     case Unit.new(unit_type) do
-      %Unit{} = u ->
-        case player.money - u.cost < 0 do
+      %Unit{} = unit ->
+        money_left_after_unit = player.money - unit.cost
+        case money_left_after_unit < 0 do
           true -> player
           false ->
-            %{player | units: [u | units], money: player.money - u.cost}
+            %{player | units: [unit | units], money: money_left_after_unit}
         end
       :error -> 
         player
@@ -114,7 +115,7 @@ defmodule Trenches.Game do
   end
 
   defp schedule_work() do
-    Process.send_after(self(), :tick, 500) # In 2 hours
+    Process.send_after(self(), :tick, 500)
   end
 
   defp publish(%{subscriber: subscriber, players: players} = state) do
