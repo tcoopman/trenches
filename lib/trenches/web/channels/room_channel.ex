@@ -5,9 +5,13 @@ defmodule Trenches.Web.RoomChannel do
 
   def join("room:game", _message, socket) do
     Game.subscribe(self())
-    id = Game.join()
-    send(self, {:after_join, id})
-    {:ok, socket}
+    case Game.join() do
+      {:error, message} ->
+        {:ok, socket} # TODO the user should be informed
+      {:ok, id} ->
+        send(self, {:after_join, id})
+        {:ok, socket}
+    end
   end
 
   def handle_in("new_unit", %{"type" => type, "id" => id}, socket) do

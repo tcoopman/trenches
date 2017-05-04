@@ -77,10 +77,11 @@ defmodule Trenches.Game do
     if id < 2 do
       player = %Player{id: id}
       players = Map.put(players, id, player)
+      state = %{state | unique_id: (id+1), players: players}
+      {:reply, {:ok, id}, state}
+    else
+      {:reply, {:error, "maximum number of players reached"}, state}
     end
-    state = %{state | unique_id: (id+1), players: players}
-
-    {:reply, id, state}
   end
 
   def handle_call({:subscribe, subscriber}, _from, state) do
