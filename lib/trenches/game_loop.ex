@@ -3,33 +3,20 @@ defmodule Trenches.GameLoop do
 
   def tick(players) do
     players
-    |> move_units
+    |> move_units_and_detect_collisions
     |> fire_units
-    |> mark_as_dead
-    |> detect_collisions
-    |> mark_as_dead
     |> payout_players
     |> check_winner
   end
 
-  defp move_units(players) do
+  defp move_units_and_detect_collisions(players) do
     players
-    |> Map.to_list
-    |> Enum.map(fn {id, player} -> 
-      {id, Player.move_units(player)}
-    end)
-    |> Map.new
+    |> move_units
+    |> detect_collisions
+    |> mark_as_dead
   end
 
   defp fire_units(players) do
-    players
-  end
-
-  defp mark_as_dead(players) do
-    players
-  end
-
-  defp detect_collisions(players) do
     players
   end
 
@@ -38,6 +25,23 @@ defmodule Trenches.GameLoop do
   end
 
   defp check_winner(players) do
+    players
+  end
+
+  def move_units(players) do
+    players
+    |> Map.to_list
+    |> Enum.map(fn {id, player} -> 
+      {id, Player.move_units(player)}
+    end)
+    |> Map.new
+  end
+
+  defp mark_as_dead(players) do
+    players
+  end
+
+  defp detect_collisions(players) do
     players
   end
 end

@@ -20,6 +20,15 @@ Proposal for the steps of the game loop
 5. players get new money for ... (units killed, damage done,...)
 6. Check for winner/loser
 
+There are still some problems with this game loop. If units first move and then fire, units may have passed each other, should they then fire backwards? Should the collision detect this. Thus a better game loop needs to be implemented. It think this can be solved by moving and detect collisions at the same time, thus:
+
+1. Move units at the same time, detect collisions and update after collisions
+2. Fire units at the same time and update units after firing
+3. players get new money for...
+4. check for winner/loser
+
+We could also decide that units first fire and then move?
+
 ## Getting started
 
 To start your Phoenix server:
