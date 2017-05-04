@@ -1,5 +1,22 @@
 # Trenches
 
+## TODO
+
+* [] implement a game loop
+
+
+### Proposal for the game loop
+
+Proposal for the steps of the game loop
+
+1. All units move at the same time
+2. All units fire at the same time (based on range and strength of the weapon, damage is dealt)
+3. Dead units after fire are marked as dead
+4. Collisions are detected (unit strengths are substracted: for example u1: 1000, u2: 700, u1 wins and has 300 strength left) and dead units are marked as dead
+5. players get new money for ... (units killed, damage done,...)
+
+## Getting started
+
 To start your Phoenix server:
 
   * Install dependencies with `mix deps.get`
