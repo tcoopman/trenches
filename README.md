@@ -3,7 +3,11 @@
 ## TODO
 
 * [] implement a game loop
-
+* [] implement a game lobby where you can register and start
+* [] nicer graphics wanted
+* [] draw the castle of the user
+* [] show stats about the players
+* [] show stats about the living units (health bar)
 
 ### Proposal for the game loop
 
