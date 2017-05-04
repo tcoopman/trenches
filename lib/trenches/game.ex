@@ -1,6 +1,7 @@
 defmodule Trenches.Game do
   use GenServer
 
+  alias Trenches.GameLoop
   alias Trenches.Player
   alias Trenches.Unit
 
@@ -54,20 +55,11 @@ defmodule Trenches.Game do
   end
 
   def handle_info(:tick, %{subscriber: subscriber, players: players} = state) do
-    players = tick(players)
+    players = GameLoop.tick(players)
     state = %{state | players: players}
     publish(state)
     schedule_work()
     {:noreply, state}
-  end
-
-  defp tick(players) do
-    players
-    |> Map.to_list
-    |> Enum.map(fn {id, player} -> 
-      {id, Player.move_units(player)}
-    end)
-    |> Map.new
   end
 
   defp schedule_work() do
