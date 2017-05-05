@@ -2,7 +2,7 @@ defmodule Trenches.Web.UserSocket do
   use Phoenix.Socket
 
   ## Channels
-  channel "room:*", Trenches.Web.RoomChannel
+  channel "game:*", Trenches.Web.GameChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

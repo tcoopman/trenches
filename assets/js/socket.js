@@ -51,8 +51,9 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 // Finally, pass the token on connect as below. Or remove it
 // from connect if you don't care about authentication.
 
-var canvas = document.getElementById('canvas');
-var context = canvas.getContext('2d');
+const playerId = 1;
+const canvas = document.getElementById('canvas');
+const context = canvas.getContext('2d');
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
@@ -72,18 +73,17 @@ function join(resp) {
   console.log("Joined successfully", resp);
   context.beginPath();
   context.font = "24px Helvetica";
-  context.fillStyle = 'white';
+  context.fillStyle = 'black';
   context.fillText('Joined Succesfully', 200, 200);
+  playerJoined(playerId)
 }
 
-var playerId = null;
 function playerJoined(resp) {
   console.log("Player joined", resp);
   drawScenery();
   context.beginPath();
   context.font = "24px Helvetica";
   context.fillStyle = 'white';
-  playerId = resp.id;
   context.fillText('You are player #' + playerId, 200, 200);
 }
 
@@ -97,10 +97,10 @@ function drawScenery() {
 
 function drawState(resp) {
   console.log(resp);
-  for (var i = 0; i < resp.players.length; i++) {
-    var player = resp.players[i];
-    for (var j = 0; j < player.units.length; j++) {
-      var unit = player.units[j];
+  for (let i = 0; i < resp.players.length; i++) {
+    let player = resp.players[i];
+    for (let j = 0; j < player.units.length; j++) {
+      let unit = player.units[j];
       drawUnit(unit, i%2===0);
     }
   }
@@ -136,12 +136,11 @@ function tick(resp) {
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("room:game", {})
+let channel = socket.channel("game:1", {player_id: playerId})
 channel.join()
   .receive("ok", join)
   .receive("error", resp => { console.log("Unable to join", resp) });
 
-channel.on("player_joined", playerJoined);
 channel.on("tick", tick);
 
 export default socket

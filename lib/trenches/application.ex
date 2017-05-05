@@ -10,6 +10,7 @@ defmodule Trenches.Application do
     children = [
       # Start the endpoint when the application starts
       supervisor(Trenches.Web.Endpoint, []),
+      worker(Trenches.PlayerRepo, []),
       worker(Trenches.Game, [])
       # Start your own worker by calling: Trenches.Worker.start_link(arg1, arg2, arg3)
       # worker(Trenches.Worker, [arg1, arg2, arg3]),
