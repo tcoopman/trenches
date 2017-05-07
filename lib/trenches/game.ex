@@ -8,24 +8,24 @@ defmodule Trenches.Game do
 
   defstruct [status: :not_started, players: %{}, subscriber: nil]
 
-  def start_link() do
-    GenServer.start_link(__MODULE__, %Game{}, name: :game)
+  def start_link(name) do
+    GenServer.start_link(__MODULE__, %Game{}, name: name)
   end
 
-  def join(%Player{} = player) do
-    GenServer.call(:game, {:join, player})
+  def join(pid, %Player{} = player) do
+    GenServer.call(pid, {:join, player})
   end
 
-  def start() do
-    GenServer.call(:game, :start)
+  def start(pid) do
+    GenServer.call(pid, :start)
   end
 
-  def new_unit(id, type) do
-    GenServer.call(:game, {:new_unit, id, type})
+  def new_unit(pid, id, type) do
+    GenServer.call(pid, {:new_unit, id, type})
   end
 
-  def subscribe(subscriber) do
-    GenServer.call(:game, {:subscribe, subscriber})
+  def subscribe(pid, subscriber) do
+    GenServer.call(pid, {:subscribe, subscriber})
   end
 
   # server
