@@ -15,20 +15,20 @@ defmodule Trenches.Lobby do
     ]
     supervise(children, strategy: :simple_one_for_one)
   end
-
+  
   def open_game(name) do
     name = {:via, Registry, {:games, name}}
     case Supervisor.start_child(:lobby, [name]) do
       {:ok, _} -> :ok
-      {:error, {:already_started, _}} -> {:error, :already_started}
-      _ -> {:error, :unknown}
+      {:error, {:already_started, _}} -> {:error, "Game #{name} is already started"}
+      _ -> {:error, "Unknown error"}
     end
   end
 
   def get(name) do
     case Registry.lookup(:games, name) do
       [{pid, nil}] -> {:ok, pid}
-      _ -> {:error, :not_found}
+      _ -> {:error, "Game #{name} is not found, does it really exist?"}
     end
   end
 

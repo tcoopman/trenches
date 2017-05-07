@@ -61,7 +61,7 @@ defmodule Trenches.Game do
     end)
     state = %{state | players: players}
     publish(state)
-    {:reply, players, state}
+    {:reply, :ok, state}
   end
 
   def handle_info(:tick, %Game{subscriber: subscriber, players: players} = state) do
