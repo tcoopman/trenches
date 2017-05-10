@@ -62,10 +62,10 @@ document.addEventListener('keyup', addSoldier);
 function addSoldier(evt) {
   console.log(evt.which);
   if(evt.which == 83) {
-    channel.push("new_unit", {'id': playerId, 'type': 'soldier'});
+    game1Channel.push("new_unit", {'id': playerId, 'type': 'soldier'});
   }
   if(evt.which == 84) {
-    channel.push("new_unit", {'id': playerId, 'type': 'tank'});
+    game1Channel.push("new_unit", {'id': playerId, 'type': 'tank'});
   }
 }
 
@@ -136,11 +136,27 @@ function tick(resp) {
 socket.connect()
 
 // Now that you are connected, you can join channels with a topic:
-let channel = socket.channel("game:1", {player_id: playerId})
-channel.join()
-  .receive("ok", join)
-  .receive("error", resp => { console.log("Unable to join", resp) });
 
-channel.on("tick", tick);
+const lobbyChannel = socket.channel("lobby", {player_id: playerId})
+lobbyChannel.join()
+  .receive("ok", lobbyJoined)
+  .receive("error", resp => console.log("unable to join lobby", resp))
+
+function lobbyJoined() {
+  const gameName = "game 1";
+  lobbyChannel
+    .push("open_game", {game_name: gameName})
+    .receive("ok", () => joinGame(gameName));
+}
+
+function joinGame(gameName) {
+  let game1Channel = socket.channel(`game:${gameName}`, {player_id: playerId})
+  game1Channel.join()
+    .receive("ok", join)
+    .receive("error", resp => { console.log("Unable to join", resp) });
+
+  game1Channel.on("tick", tick);
+
+}
 
 export default socket

@@ -41,7 +41,7 @@ defmodule Trenches.Game do
   end
 
   def handle_call(:start, _from, %Game{status: status, players: players} = state) do
-    if Enum.count(players) < 2 do
+    if Enum.count(players) == 2 do
       state = %{state | status: :started}
       schedule_tick
       {:reply, :ok, state}

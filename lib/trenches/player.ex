@@ -12,10 +12,10 @@ defmodule Trenches.Player do
     case Unit.new(unit_type) do
       %Unit{} = unit ->
         money_left_after_unit = player.money - unit.cost
-        case money_left_after_unit < 0 do
-          true -> player
-          false ->
+        case money_left_after_unit > 0 do
+          true ->
             %{player | units: [unit | units], money: money_left_after_unit}
+          false -> player
         end
       :error -> 
         player

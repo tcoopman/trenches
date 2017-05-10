@@ -3,6 +3,7 @@ defmodule Trenches.Web.UserSocket do
 
   ## Channels
   channel "game:*", Trenches.Web.GameChannel
+  channel "lobby", Trenches.Web.LobbyChannel
 
   ## Transports
   transport :websocket, Phoenix.Transports.WebSocket

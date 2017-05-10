@@ -17,8 +17,7 @@ defmodule Trenches.Lobby do
   end
   
   def open_game(name) do
-    name = {:via, Registry, {:games, name}}
-    case Supervisor.start_child(:lobby, [name]) do
+    case Supervisor.start_child(:lobby, [{:via, Registry, {:games, name}}]) do
       {:ok, _} -> :ok
       {:error, {:already_started, _}} -> {:error, "Game #{name} is already started"}
       _ -> {:error, "Unknown error"}
