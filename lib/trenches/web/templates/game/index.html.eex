@@ -1,0 +1,2 @@
+<canvas id="canvas" width="100%" heigth="100%" />
+<script src="<%= static_path(@conn, "/js/app.js") %>"></script>
