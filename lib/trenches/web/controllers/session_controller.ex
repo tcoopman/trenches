@@ -12,7 +12,7 @@ defmodule Trenches.Web.SessionController do
       {:error, reason} -> 
         conn
         |> put_flash(:error, reason)
-        |> render "login.html"
+        |> render("login.html")
       player ->
         conn
         |> Trenches.Web.Auth.login(player)

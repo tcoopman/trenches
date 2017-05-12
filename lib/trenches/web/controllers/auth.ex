@@ -6,7 +6,7 @@ defmodule Trenches.Web.Auth do
   def init(_opts) do
   end
 
-  def call(conn, repo) do
+  def call(conn, _) do
     user_name = get_session(conn, :user_name)
     case user_name && PlayerRepo.get(user_name) do
       {:error, _} -> conn
