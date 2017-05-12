@@ -1,4 +1,4 @@
-defmodule Trenches.Web.GameController do
+defmodule Trenches.Web.LobbyController do
   use Trenches.Web, :controller
 
   plug :authenticate when action in [:index]
@@ -17,5 +17,4 @@ defmodule Trenches.Web.GameController do
       |> halt
     end
   end
-
 end
