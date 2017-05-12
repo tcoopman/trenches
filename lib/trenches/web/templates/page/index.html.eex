@@ -1,1 +1,14 @@
-<%= link "Log in", to: session_path(@conn, :new) %>
+ <div class="ui fixed inverted menu pointing">
+    <div class="ui container">
+      <div class="header item">
+        Trenches
+      </div>
+      <a href="#" class="item">Home</a>
+      <%= if @current_user do %>
+        <%= link "The lobby", to: lobby_path(@conn, :index), class: "item" %>
+        <%= link "Log out", to: session_path(@conn, :delete, @current_user), method: "delete", class: "item" %>
+      <% else %>
+        <%= link "Log in", to: session_path(@conn, :new), class: "item" %>
+      <% end %>
+    </div>
+  </div>

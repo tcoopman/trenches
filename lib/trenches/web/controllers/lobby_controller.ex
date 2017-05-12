@@ -8,7 +8,8 @@ defmodule Trenches.Web.LobbyController do
   end
 
   defp authenticate(conn, _opts) do
-    if Map.has_key?(conn.assigns, :current_user) do
+    user = Map.get(conn.assigns, :current_user)
+    if user != nil do
       conn
     else
       conn

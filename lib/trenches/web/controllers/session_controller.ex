@@ -19,6 +19,11 @@ defmodule Trenches.Web.SessionController do
         |> put_flash(:info, "Welcome back #{player.name}!")
         |> redirect(to: page_path(conn, :index))
     end
+  end
 
+  def delete(conn, _params) do
+    conn
+    |> Trenches.Web.Auth.logout()
+    |> redirect(to: page_path(conn, :index))
   end
 end
