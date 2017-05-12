@@ -1,1 +1,5 @@
-<canvas id="canvas" width="100%" heigth="100%" />
+<ul>
+    <%= for game <- @games do %>
+        <li><%= game %></li>
+    <% end %>
+</ul>
