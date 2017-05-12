@@ -26,7 +26,9 @@ defmodule Trenches.PlayerRepo do
   end
 
   def handle_call({:get, name}, _from, %{} = state) do
-    player_or_error = Map.get(state, name, {:error, "#{name} is not found."})
-    {:reply, player_or_error, state}
+    case Map.get(state, name) do
+      nil -> {:reply, {:error, "#{name} is not found."}, state}
+      player -> {:reply, {:ok, player}, state}
+    end
   end
 end

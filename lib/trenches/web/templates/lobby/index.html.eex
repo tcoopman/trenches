@@ -4,3 +4,4 @@
         <li><%= game %><button>Join game</button></li>
     <% end %>
 </ul>
+<script>window.currentUser = "<%= assigns[:current_user].name %>";</script>

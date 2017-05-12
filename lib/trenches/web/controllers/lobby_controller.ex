@@ -7,7 +7,7 @@ defmodule Trenches.Web.LobbyController do
 
   def index(conn, _params) do
     games = Lobby.all_open_games()
-    |> Enum.map(fn player -> player.name end)
+    |> Enum.map(fn game -> game.name end)
     render conn, "index.html", %{games: games}
   end
 

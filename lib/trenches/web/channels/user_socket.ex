@@ -1,6 +1,8 @@
 defmodule Trenches.Web.UserSocket do
   use Phoenix.Socket
 
+  alias Trenches.PlayerRepo
+
   ## Channels
   channel "game:*", Trenches.Web.GameChannel
   channel "lobby", Trenches.Web.LobbyChannel
@@ -20,9 +22,15 @@ defmodule Trenches.Web.UserSocket do
   #
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
-  def connect(_params, socket) do
-    {:ok, socket}
+  def connect(%{"player_name" => player_name}, socket) do
+    case PlayerRepo.get(player_name) do
+      {:ok, player} ->
+        {:ok, assign(socket, :player, player)}
+      {:error, _} ->
+        :error
+    end
   end
+  def connect(_params, socket), do: :error
 
   # Socket id's are topics that allow you to identify all sockets for a given user:
   #

@@ -9,15 +9,15 @@ defmodule Trenches.Web.SessionController do
 
   def create(conn, %{"user" => user}) do
     case PlayerRepo.get(user) do
-      {:error, reason} -> 
-        conn
-        |> put_flash(:error, reason)
-        |> render("login.html")
-      player ->
+      {:ok, player} ->
         conn
         |> Trenches.Web.Auth.login(player)
         |> put_flash(:info, "Welcome back #{player.name}!")
         |> redirect(to: page_path(conn, :index))
+      {:error, reason} -> 
+        conn
+        |> put_flash(:error, reason)
+        |> render("login.html")
     end
   end
 
