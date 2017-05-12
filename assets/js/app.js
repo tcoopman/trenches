@@ -1,3 +1,4 @@
+// @ts-check
 // Brunch automatically concatenates all files in your
 // watched paths. Those paths can be configured at
 // config.paths.watched in "brunch-config.js".
@@ -18,4 +19,23 @@ import "phoenix_html"
 // Local files can be imported directly using relative
 // paths "./socket" or full ones "web/static/js/socket".
 
-import socket from "./socket"
+// import socket from "./socket"
+import loadView from './view_loader';
+
+function handleDOMContentLoaded() {
+    // Get the current view name
+    const viewName = document.getElementsByTagName('body')[0].dataset.jsViewName;
+
+    const ViewClass = loadView(viewName);
+    const view = new ViewClass();
+    view.mount();
+
+    window.currentView = view;
+}
+
+function handleDocumentUnload() {
+    window.currentView.unmount();
+}
+
+window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);
+window.addEventListener('unload', handleDocumentUnload, false);

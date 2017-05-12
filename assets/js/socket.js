@@ -52,10 +52,10 @@ let socket = new Socket("/socket", {params: {token: window.userToken}})
 // from connect if you don't care about authentication.
 
 const playerId = 1;
-const canvas = document.getElementById('canvas');
-const context = canvas.getContext('2d');
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+// const canvas = document.getElementById('canvas');
+// const context = canvas.getContext('2d');
+// canvas.width = window.innerWidth;
+// canvas.height = window.innerHeight;
 
 document.addEventListener('keyup', addSoldier);
 
