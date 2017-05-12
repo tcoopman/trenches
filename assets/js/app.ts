@@ -26,15 +26,20 @@ function handleDOMContentLoaded() {
     // Get the current view name
     const viewName = document.getElementsByTagName('body')[0].dataset.jsViewName;
 
-    const ViewClass = loadView(viewName);
-    const view = new ViewClass();
-    view.mount();
+    if (typeof viewName === 'string') {
+        const ViewClass = loadView(viewName);
+        const view = new ViewClass();
+        view.mount();
 
-    window.currentView = view;
+        (window as any).currentView = view;
+    }
 }
 
 function handleDocumentUnload() {
-    window.currentView.unmount();
+    const currentView =(window as any).currentView;
+    if (currentView) {
+        currentView.unmount();
+    }
 }
 
 window.addEventListener('DOMContentLoaded', handleDOMContentLoaded, false);
