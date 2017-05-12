@@ -1,5 +1,6 @@
+<h1 class="ui header">Open games</h1>
 <ul>
     <%= for game <- @games do %>
-        <li><%= game %></li>
+        <li><%= game %><button>Join game</button></li>
     <% end %>
 </ul>

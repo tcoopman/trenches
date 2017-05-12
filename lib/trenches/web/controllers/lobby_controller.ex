@@ -6,7 +6,8 @@ defmodule Trenches.Web.LobbyController do
   plug :authenticate when action in [:index]
 
   def index(conn, _params) do
-    games = ["game1", "game2"]
+    games = Lobby.all_open_games()
+    |> Enum.map(fn player -> player.name end)
     render conn, "index.html", %{games: games}
   end
 

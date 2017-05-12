@@ -1,34 +1,40 @@
 defmodule Trenches.Lobby do
-  use Supervisor
+  use GenServer
 
-  import Supervisor.Spec
-
+  alias __MODULE__
   alias Trenches.Game
 
+  defstruct [players: [], games: %{}]
+
   def start_link do
-    Supervisor.start_link(__MODULE__, nil, name: :lobby)
+    GenServer.start_link(__MODULE__, %Lobby{}, name: :lobby)
   end
-  
-  def init(_) do
-    children = [
-      worker(Game, [], restart: :transient)
-    ]
-    supervise(children, strategy: :simple_one_for_one)
-  end
-  
+
   def open_game(name) do
-    case Supervisor.start_child(:lobby, [{:via, Registry, {:games, name}}]) do
-      {:ok, _} -> :ok
-      {:error, {:already_started, _}} -> {:error, "Game #{name} is already started"}
-      _ -> {:error, "Unknown error"}
+    GenServer.call(:lobby, {:open_game, name})
+  end
+
+  def all_open_games() do
+    GenServer.call(:lobby, :all_open_games)
+  end
+
+  # Server
+  def handle_call({:open_game, name}, _from, %Lobby{games: games} = state) do
+    case Map.has_key?(games, name) do
+      true ->
+        {:reply, {:error, "Game #{name} already exists"}, state}
+      false ->
+        game = Game.new(name)
+        state = %{state | games: Map.put(games, name, game)}
+        {:reply, :ok, state}
     end
   end
 
-  def get(name) do
-    case Registry.lookup(:games, name) do
-      [{pid, nil}] -> {:ok, pid}
-      _ -> {:error, "Game #{name} is not found, does it really exist?"}
-    end
-  end
+  def handle_call(:all_open_games, _from, %Lobby{games: games} = state) do
+    open_games = games
+    |> Map.values
+    |> Enum.filter(&Game.open?/1)
 
+    {:reply, open_games, state}
+  end
 end
