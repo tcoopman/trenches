@@ -29,7 +29,5 @@ defmodule Trenches.Game do
     {:ok, game}
   end
 
-  def open?(%Game{status: status}) do
-    status == :not_started
-  end
+  def open?(%Game{status: status}), do: status == :not_started
 end
