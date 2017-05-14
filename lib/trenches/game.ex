@@ -9,17 +9,20 @@ defmodule Trenches.Game do
   end
 
   def join(%Game{players: players} = game, %Player{} = player) do
-    if Enum.count(players) < 2 do
-      players = Map.put(players, player.id, player)
-      game = %{game | players: players}
-      {:ok, game}
-    else
-      {:error, "maximum number of players reached"}
+    cond do
+      Map.has_key?(players, player.id) ->
+        {:error, "player already joined the game"}
+      Enum.count(players) >= 2 ->
+        {:error, "maximum number of players reached"}
+      true ->
+        players = Map.put(players, player.id, player)
+        game = %{game | players: players}
+        {:ok, game}
     end
   end
 
-  def new_unit(%Game{players: players} = game, id, type) do
-    players = Map.update!(players, id, fn player -> 
+  def new_unit(%Game{players: players} = game, player_id, type) do
+    players = Map.update!(players, player_id, fn player -> 
       Player.add_unit(player, type)
     end)
     game = %{game | players: players}

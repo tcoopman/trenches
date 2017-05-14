@@ -6,8 +6,8 @@ defmodule Trenches.GameLoopTest do
   alias Trenches.Unit
 
   setup do
-    player1 = Player.new(1)
-    player2 = Player.new(2)
+    player1 = Player.new(1, 1)
+    player2 = Player.new(2, 2)
     [player1: player1, player2: player2]
   end
 
