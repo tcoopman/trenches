@@ -2,7 +2,7 @@ defmodule Trenches.Player do
   alias __MODULE__
   alias Trenches.Unit
 
-  defstruct [:id, :name, units: [], hitpoints: 100, money: 1000]
+  defstruct [:id, :name, units: [], money: 1000]
 
   def new(name, id) do
     %Player{id: id, name: name}
