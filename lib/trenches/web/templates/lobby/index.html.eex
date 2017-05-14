@@ -1,5 +1,14 @@
-<h1 class="ui header">Open games</h1>
-<ul>
+<h1 class="ui header">Welcome in the lobby</h1>
+<h2 class="ui header">Create a new Game</h2>
+<form id="new-game" class="ui form">
+  <div class="field">
+    <label>Game name</label>
+    <input type="text" name="game-name" placeholder="Game name">
+  </div>
+  <button class="ui button" type="submit">Create new game</button>
+</form>
+<h2 class="ui header">Open games</h2>
+<ul id="games-list">
     <%= for game <- @games do %>
         <li><%= game %><button>Join game</button></li>
     <% end %>

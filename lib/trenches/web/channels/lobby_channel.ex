@@ -4,24 +4,17 @@ defmodule Trenches.Web.LobbyChannel do
   alias Trenches.PlayerRepo
   alias Trenches.Lobby
 
-  def join("lobby", %{"player_id" => player_id}, socket) do
-    with {:ok, player} <- PlayerRepo.get(player_id)
-    do
-      socket =assign(socket, :player_id, player_id)
-      {:ok, socket}
-    end
+  def join("lobby", _params, socket) do
+    {:ok, socket}
   end
 
   def handle_in("open_game", %{"game_name" => game_name}, socket) do
-    player_id = socket.assigns[:player_id]
-    with {:ok, player} <- PlayerRepo.get(player_id),
-         :ok <- Lobby.open_game(game_name)
-    do
-      {:reply, :ok, socket}
-    else
-      {:error, reason} -> {:reply, {:error, reason}, socket}
-      _ -> {:reply, {:error, "Unknown problem"}, socket}
+    reply = case Lobby.open_game(game_name) do
+      :ok ->
+        broadcast! socket, "game_opened", %{game_name: game_name}
+        {:reply, :ok, socket}
+      {:error, reason} -> 
+        {:reply, {:error, %{error: reason}}, socket}
     end
-
   end
 end
