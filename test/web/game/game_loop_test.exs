@@ -30,8 +30,8 @@ defmodule Trenches.GameLoopTest do
     }
     new_players = GameLoop.tick(players)
 
-    strength1 = Map.get(new_players, 1).units |> Enum.at(0) |> Map.get(:strength)
-    strength2 = Map.get(new_players, 1).units |> Enum.at(0) |> Map.get(:strength)
+    strength1 = new_players[1].units |> Enum.at(0) |> Map.get(:strength)
+    strength2 = new_players[2].units |> Enum.at(0) |> Map.get(:strength)
     assert 0 = strength1
     assert 0 = strength2
   end
