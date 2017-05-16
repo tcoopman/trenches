@@ -4,7 +4,7 @@ defmodule Trenches.Player do
 
   defstruct [:id, :name, units: [], money: 1000]
 
-  def new(name, id) do
+  def new(id, name) do
     %Player{id: id, name: name}
   end
 
@@ -17,13 +17,13 @@ defmodule Trenches.Player do
             %{player | units: [unit | units], money: money_left_after_unit}
           false -> player
         end
-      :error -> 
+      :error ->
         player
     end
   end
 
   def move_units(%Player{units: units} = player) do
-    units = Enum.map(units, fn unit -> 
+    units = Enum.map(units, fn unit ->
       Unit.move(unit)
     end)
     %{player | units: units}
