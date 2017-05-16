@@ -5,7 +5,7 @@ defmodule Trenches.PlayerTest do
   alias Trenches.Unit
 
   setup do
-    [player: Player.new(1, 'player 1')]
+    [player: Player.new(1, 'player 1'), soldier: Unit.new("soldier")]
   end
 
   test "verify the constructor", %{player: player} do
@@ -25,4 +25,15 @@ defmodule Trenches.PlayerTest do
     assert Player.add_unit(player, "unknown") == player
   end
 
+  test "going over budget fails", %{player: player, soldier: soldier} do
+    player = Enum.reduce(1..4, player, fn(_index, acc) -> Player.add_unit(acc, "soldier") end)
+
+    assert player.units == [soldier, soldier, soldier]
+    assert player.money == 1000 - 3*soldier.cost
+  end
+
+  test "lkjsdhfkqsdfh", %{player: player} do
+    player = %{player | money: 300}
+    assert player.add_unit("soldier").money == 0
+  end
 end
