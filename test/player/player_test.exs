@@ -32,8 +32,8 @@ defmodule Trenches.PlayerTest do
     assert player.money == 1000 - 3*soldier.cost
   end
 
-  test "lkjsdhfkqsdfh", %{player: player} do
-    player = %{player | money: 300}
-    assert player.add_unit("soldier").money == 0
+  test "buying exact amount", %{player: player, soldier: soldier} do
+    player = %{player | money: soldier.cost}
+    assert Player.add_unit(player, "soldier").money == 0
   end
 end
