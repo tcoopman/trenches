@@ -50,42 +50,25 @@ defmodule Trenches.GameLoop do
     units1 = Map.get(players, 1).units
     units2 = Map.get(players, 2).units
 
-    new_units = find_collisions(units1, units2)
-    |> update_collisions
-
-    units1 = Enum.map(new_units, fn {u1, _} -> u1 end)
-    units2 = Enum.map(new_units, fn {_, u2} -> u2 end)
+    new_units1 = Enum.map(units1, &collide(&1, units2))
+    new_units2 = Enum.map(units2, &collide(&1, units1))
 
     players = Map.update!(players, 1, fn player -> 
-      %{player | units: units1}
+      %{player | units: new_units1}
     end)
     players = Map.update!(players, 2, fn player -> 
-      %{player | units: units2}
+      %{player | units: new_units2}
     end)
 
     %{game | players: players}
   end
 
-  defp find_collisions(units1, units2) do
-    zip_all(units1, units2)
-    |> Enum.filter(fn {u1, u2} -> 
-      u1.position + u2.position >= @field_width
+  defp collide(unit, other_units) do
+    Enum.filter(other_units, fn other_unit -> 
+      unit.position + other_unit.position >= @field_width
     end)
-  end
-
-  defp zip_all(list1, list2) do
-    Enum.flat_map(list1, fn item1 -> 
-      Enum.map(list2, fn item2 -> 
-        {item1, item2}
-      end)
-    end)
-  end
-
-  defp update_collisions(collisions) do
-    Enum.map(collisions, fn {u1, u2} -> 
-      updated_u1 = %{u1 | strength: max(u1.strength - u2.strength, 0)}
-      updated_u2 = %{u2 | strength: max(u2.strength - u1.strength, 0)}
-      {updated_u1, updated_u2}
+    |> Enum.reduce(unit, fn (colliding, unit) -> 
+      %{unit | strength: max(unit.strength - colliding.strength, 0)}
     end)
   end
 end

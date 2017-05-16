@@ -51,8 +51,19 @@ defmodule Trenches.GameLoopTest do
 
   end
 
-  test "no collisions but there are units" do
+  test "no collisions but there are units", %{game: game} do
+    unit1 = %Unit{type: :foo, position: 40, strength: 100, cost: 0, speed: 1}
+    unit2 = %Unit{type: :foo, position: 40, strength: 100, cost: 0, speed: 1}
 
+    new_game = game
+    |> add_unit_to_player(1, unit1)
+    |> add_unit_to_player(2, unit2)
+    |> GameLoop.tick
+
+    strength1 = new_game.players[1].units |> Enum.at(0) |> Map.get(:strength)
+    strength2 = new_game.players[2].units |> Enum.at(0) |> Map.get(:strength)
+    assert 100 = strength1
+    assert 100 = strength2
   end
 
   test "more then each one unit" do
