@@ -1,6 +1,7 @@
 defmodule Trenches.GameLoopTest do
   use ExUnit.Case, async: true
 
+  alias Trenches.Game
   alias Trenches.GameLoop
   alias Trenches.Player
   alias Trenches.Unit
@@ -8,30 +9,31 @@ defmodule Trenches.GameLoopTest do
   setup do
     player1 = Player.new(1, 1)
     player2 = Player.new(2, 2)
-    [player1: player1, player2: player2]
+
+    game = Game.new("test")
+    {:ok, game} = Game.join(game, player1)
+    {:ok, game} = Game.join(game, player2)
+    [game: game]
   end
 
-  test "When players have no units a tick doesn't do anything'", context do
-    players = %{
-      1 => context[:player1],
-      2 => context[:player2]
-    }
-    assert players == GameLoop.tick(players)
+  test "When players have no units a tick doesn't do anything'", %{game: game} do
+    assert game == GameLoop.tick(game)
   end
 
-  test "2 units collide with same strength, because nobody wins, no money is awarded", context do
+  test "2 units collide with same strength, because nobody wins, no money is awarded", %{game: game} do
     unit1 = %Unit{type: :foo, position: 49, strength: 100, cost: 0, speed: 1}
     unit2 = %Unit{type: :foo, position: 49, strength: 100, cost: 0, speed: 1}
-    player1 = %{context[:player1] | units: [unit1]}
-    player2 = %{context[:player2] | units: [unit2]}
-    players = %{
-      1 => player1,
-      2 => player2
-    }
-    new_players = GameLoop.tick(players)
+    players = game.players
+    players = Map.update!(players, 1, fn player -> 
+      %{player | units: [unit1]}
+    end)
+    players = Map.update!(players, 2, fn player -> 
+      %{player | units: [unit2]}
+    end)
+    new_game = GameLoop.tick(%{game | players: players})
 
-    strength1 = new_players[1].units |> Enum.at(0) |> Map.get(:strength)
-    strength2 = new_players[2].units |> Enum.at(0) |> Map.get(:strength)
+    strength1 = new_game.players[1].units |> Enum.at(0) |> Map.get(:strength)
+    strength2 = new_game.players[2].units |> Enum.at(0) |> Map.get(:strength)
     assert 0 = strength1
     assert 0 = strength2
   end

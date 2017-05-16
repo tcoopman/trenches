@@ -1,49 +1,52 @@
 defmodule Trenches.GameLoop do
   alias Trenches.Player
+  alias Trenches.Game
 
   @field_width 100
 
-  def tick(players) do
-    players
+  def tick(%Game{} = game) do
+    game
     |> move_units_and_detect_collisions
     |> fire_units
     |> payout_players
     |> check_winner
   end
 
-  defp move_units_and_detect_collisions(players) do
-    players
+  defp move_units_and_detect_collisions(game) do
+    game
     |> move_units
     |> detect_collisions
     |> mark_as_dead
   end
 
-  defp fire_units(players) do
-    players
+  defp fire_units(game) do
+    game
   end
 
-  defp payout_players(players) do
-    players
+  defp payout_players(game) do
+    game
   end
 
-  defp check_winner(players) do
-    players
+  defp check_winner(game) do
+    game
   end
 
-  def move_units(players) do
-    players
+  def move_units(game) do
+    players = game.players
     |> Map.to_list
     |> Enum.map(fn {id, player} -> 
       {id, Player.move_units(player)}
     end)
     |> Map.new
+    %{game | players: players}
   end
 
-  defp mark_as_dead(players) do
-    players
+  defp mark_as_dead(game) do
+    game
   end
 
-  defp detect_collisions(players) do
+  defp detect_collisions(game) do
+    players = game.players
     units1 = Map.get(players, 1).units
     units2 = Map.get(players, 2).units
 
@@ -60,7 +63,7 @@ defmodule Trenches.GameLoop do
       %{player | units: units2}
     end)
 
-    players
+    %{game | players: players}
   end
 
   defp find_collisions(units1, units2) do
