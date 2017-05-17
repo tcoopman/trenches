@@ -5,7 +5,7 @@ defmodule Trenches.PlayerTest do
   alias Trenches.Unit
 
   setup do
-    [player: Player.new(1, 'player 1'), soldier: Unit.new("soldier")]
+    [player: Player.new(1, 'player 1')]
   end
 
   test "player starts with 1000 credits and no units", %{player: player} do
