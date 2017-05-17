@@ -1,6 +1,6 @@
 defmodule Trenches.PlayerRepo do
   use GenServer
-  
+
   alias Trenches.Player
 
   def start_link() do
@@ -19,7 +19,7 @@ defmodule Trenches.PlayerRepo do
     if Map.has_key?(state, name) do
       {:reply, {:error, "Name: #{name} is not unique"}, state}
     else
-      player = Player.new(name, UUID.uuid4)
+      player = Player.new(UUID.uuid4, name)
       state = Map.put(state, name, player)
       {:reply, :ok, state}
     end
