@@ -21,12 +21,9 @@ defmodule Trenches.GameLoopTest do
   end
 
   test "2 units collide with same strength, both units have 0 strength left", %{game: game} do
-    unit1 = %Unit{type: :foo, position: 49, strength: 100, cost: 0, speed: 1}
-    unit2 = %Unit{type: :foo, position: 49, strength: 100, cost: 0, speed: 1}
-
     new_game = game
-    |> add_unit_to_player(1, unit1)
-    |> add_unit_to_player(2, unit2)
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 49, strength: 100, speed: 1})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 49, strength: 100, speed: 1})
     |> GameLoop.tick
 
     strength1 = new_game.players[1].units |> Enum.at(0) |> Map.get(:strength)
@@ -36,12 +33,9 @@ defmodule Trenches.GameLoopTest do
   end
 
   test "stronger unit collides with weaker unit, the stronger unit wins", %{game: game} do
-    unit1 = %Unit{type: :foo, position: 49, strength: 120, cost: 0, speed: 1}
-    unit2 = %Unit{type: :foo, position: 49, strength: 100, cost: 0, speed: 1}
-    
     new_game = game
-    |> add_unit_to_player(1, unit1)
-    |> add_unit_to_player(2, unit2)
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 49, strength: 120, speed: 1})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 49, strength: 100, speed: 1})
     |> GameLoop.tick
 
     strength1 = new_game.players[1].units |> Enum.at(0) |> Map.get(:strength)
@@ -52,12 +46,9 @@ defmodule Trenches.GameLoopTest do
   end
 
   test "no collisions but there are units", %{game: game} do
-    unit1 = %Unit{type: :foo, position: 40, strength: 100, cost: 0, speed: 1}
-    unit2 = %Unit{type: :foo, position: 40, strength: 100, cost: 0, speed: 1}
-
     new_game = game
-    |> add_unit_to_player(1, unit1)
-    |> add_unit_to_player(2, unit2)
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 40, strength: 100, speed: 1})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 40, strength: 100, speed: 1})
     |> GameLoop.tick
 
     strength1 = new_game.players[1].units |> Enum.at(0) |> Map.get(:strength)
@@ -66,8 +57,31 @@ defmodule Trenches.GameLoopTest do
     assert 100 = strength2
   end
 
-  test "more then each one unit" do
-    
+  test "one player has 2 units half the strength of one unit of the other player, all keep 0 strength", %{game: game} do
+    new_game = game
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 49, strength: 50, speed: 1})
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 49, strength: 50, speed: 1})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 49, strength: 100, speed: 1})
+    |> GameLoop.tick
+
+    strength1 = new_game.players[1].units |> Enum.at(0) |> Map.get(:strength)
+    strength2 = new_game.players[1].units |> Enum.at(1) |> Map.get(:strength)
+    strength3 = new_game.players[2].units |> Enum.at(0) |> Map.get(:strength)
+    assert 0 = strength1
+    assert 0 = strength2
+    assert 0 = strength3
+  end
+
+  test "multiple units colliding, one survives", %{game: game} do
+    new_game = game
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 49, strength: 50, speed: 1})
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 49, strength: 50, speed: 1})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 49, strength: 50, speed: 1})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 49, strength: 51, speed: 1})
+    |> GameLoop.tick
+
+    strength_of_units_eql(new_game.players[1], [0, 0])
+    strength_of_units_eql(new_game.players[2], [1, 0])
   end
 
   defp add_unit_to_player(%Game{} = game, player_id, unit) do
@@ -75,5 +89,10 @@ defmodule Trenches.GameLoopTest do
       %{player | units: [unit | player.units]}
     end)
     %{game | players: players}
+  end
+
+  defp strength_of_units_eql(player, expected) do
+    actual_units = player.units |> Enum.map(fn u -> u.strength end) |> MapSet.new
+    assert actual_units == MapSet.new(expected)
   end
 end

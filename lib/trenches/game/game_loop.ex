@@ -47,11 +47,16 @@ defmodule Trenches.GameLoop do
 
   defp detect_collisions(game) do
     players = game.players
-    units1 = Map.get(players, 1).units
-    units2 = Map.get(players, 2).units
 
-    new_units1 = Enum.map(units1, &collide(&1, units2))
-    new_units2 = Enum.map(units2, &collide(&1, units1))
+    sorted_units = fn player_id -> 
+      Map.get(players, player_id).units
+      |> Enum.sort_by(fn u -> u.position end)
+    end
+
+    units1 = sorted_units.(1)
+    units2 = sorted_units.(2)
+
+    {new_units1, new_units2} = collide(units1, units2)
 
     players = Map.update!(players, 1, fn player -> 
       %{player | units: new_units1}
@@ -63,12 +68,20 @@ defmodule Trenches.GameLoop do
     %{game | players: players}
   end
 
-  defp collide(unit, other_units) do
-    Enum.filter(other_units, fn other_unit -> 
-      unit.position + other_unit.position >= @field_width
-    end)
-    |> Enum.reduce(unit, fn (colliding, unit) -> 
-      %{unit | strength: max(unit.strength - colliding.strength, 0)}
-    end)
+  defp collide(old1, old2, new1 \\ [], new2 \\ [])
+  defp collide([], old2, new1, new2), do: {new1, old2 ++ new2}
+  defp collide(old1, [], new1, new2), do: {old1 ++ new1, new2}
+  defp collide([u1 | tl1], [u2 | tl2], new1, new2) do
+    if u1.position + u2.position >= @field_width do
+      new_u1 = %{u1 | strength: max(u1.strength - u2.strength, 0)}
+      new_u2 = %{u2 | strength: max(u2.strength - u1.strength, 0)}
+      
+      {tl1, new1} = if new_u1.strength == 0, do: {tl1, [new_u1 | new1]}, else: {[new_u1 | tl1], new1}
+      {tl2, new2} = if new_u2.strength == 0, do: {tl2, [new_u2 | new2]}, else: {[new_u2 | tl2], new2}
+
+      collide(tl1, tl2, new1, new2)
+    else
+      {[u1 | tl1] ++ new1, [u2 | tl2] ++ new2}
+    end
   end
 end
