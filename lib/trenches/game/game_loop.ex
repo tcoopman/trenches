@@ -51,6 +51,7 @@ defmodule Trenches.GameLoop do
     sorted_units = fn player_id -> 
       Map.get(players, player_id).units
       |> Enum.sort_by(fn u -> u.position end)
+      |> Enum.reverse
     end
 
     units1 = sorted_units.(1)

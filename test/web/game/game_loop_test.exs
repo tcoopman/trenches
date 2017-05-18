@@ -84,6 +84,20 @@ defmodule Trenches.GameLoopTest do
     strength_of_units_eql(new_game.players[2], [1, 0])
   end
 
+  test "complex collision scenario", %{game: game} do
+    new_game = game
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 30, strength: 20, speed: 0})
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 50, strength: 20, speed: 0})
+    |> add_unit_to_player(1, %Unit{type: :foo, position: 60, strength: 15, speed: 0})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 70, strength: 10, speed: 0})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 40, strength: 20, speed: 0})
+    |> add_unit_to_player(2, %Unit{type: :foo, position: 50, strength: 10, speed: 0})
+    |> GameLoop.tick
+
+    strength_of_units_eql(new_game.players[1], [0, 15, 20])
+    strength_of_units_eql(new_game.players[2], [0, 0, 20])
+  end
+
   defp add_unit_to_player(%Game{} = game, player_id, unit) do
     players = Map.update!(game.players, player_id, fn player -> 
       %{player | units: [unit | player.units]}
