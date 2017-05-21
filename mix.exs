@@ -15,7 +15,7 @@ defmodule Trenches.Mixfile do
   #
   # Type `mix help compile.app` for more information.
   def application do
-    [mod: {Trenches.Application, []},
+    [mod: {Trenches, []},
      extra_applications: [:logger, :runtime_tools]]
   end
 

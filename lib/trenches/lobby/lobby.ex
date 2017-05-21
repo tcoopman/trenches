@@ -1,40 +1,27 @@
 defmodule Trenches.Lobby do
-  use GenServer
+  import Supervisor.Spec
 
-  alias __MODULE__
-  alias Trenches.Game
-
-  defstruct [players: [], games: %{}]
+  alias Trenches.{Game, GameServer}
 
   def start_link do
-    GenServer.start_link(__MODULE__, %Lobby{}, name: :lobby)
+    children = [
+      worker(Trenches.GameServer, [], restart: :transient)
+    ]
+    Supervisor.start_link(children, strategy: :simple_one_for_one, name: __MODULE__)
   end
 
-  def open_game(name) do
-    GenServer.call(:lobby, {:open_game, name})
-  end
-
-  def all_open_games() do
-    GenServer.call(:lobby, :all_open_games)
-  end
-
-  # Server
-  def handle_call({:open_game, name}, _from, %Lobby{games: games} = state) do
-    case Map.has_key?(games, name) do
-      true ->
-        {:reply, {:error, "Game #{name} already exists"}, state}
-      false ->
-        game = Game.new(name)
-        state = %{state | games: Map.put(games, name, game)}
-        {:reply, :ok, state}
+  def create_game(name) do
+    game = Game.new(name)
+    case Supervisor.start_child(__MODULE__, [game]) do
+      {:ok, _} -> :ok
+      {:error, {:already_started, _}} -> {:error, :duplicate_name}
     end
   end
 
-  def handle_call(:all_open_games, _from, %Lobby{games: games} = state) do
-    open_games = games
-    |> Map.values
-    |> Enum.filter(&Game.open?/1)
-
-    {:reply, open_games, state}
+  def all_open_games() do
+    Supervisor.which_children(__MODULE__)
+    |> Enum.map(fn {_, pid, _, _} -> pid end)
+    |> Enum.filter(&(GameServer.open?(&1)))
+    |> Enum.map(&(GameServer.name(&1)))
   end
 end

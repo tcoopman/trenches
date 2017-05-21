@@ -1,6 +1,6 @@
 defmodule Trenches.Game do
   alias __MODULE__
-  alias Trenches.Player
+  alias Trenches.{Player, GameLoop}
 
   defstruct [status: :not_started, players: %{}, subscriber: nil, name: nil]
 
@@ -27,6 +27,10 @@ defmodule Trenches.Game do
     end)
     game = %{game | players: players}
     {:ok, game}
+  end
+
+  def tick(%Game{} = game) do
+    GameLoop.tick(game)
   end
 
   def open?(%Game{status: status}), do: status == :not_started
