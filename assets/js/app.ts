@@ -13,6 +13,8 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
+import {main as lobbyMain} from "./main-bundled";
+
 
 // Import local files
 //
@@ -27,11 +29,15 @@ function handleDOMContentLoaded() {
     const viewName = document.getElementsByTagName('body')[0].dataset.jsViewName;
 
     if (typeof viewName === 'string') {
-        const ViewClass = loadView(viewName);
-        const view = new ViewClass();
-        view.mount();
+        if (viewName === 'LobbyIndexView') {
+            lobbyMain(document.body);
+        } else {
+            const ViewClass = loadView(viewName);
+            const view = new ViewClass();
+            view.mount();
 
-        (window as any).currentView = view;
+            (window as any).currentView = view;
+        }
     }
 }
 
