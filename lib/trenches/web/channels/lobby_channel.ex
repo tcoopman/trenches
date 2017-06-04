@@ -5,7 +5,8 @@ defmodule Trenches.Web.LobbyChannel do
   alias Trenches.Lobby
 
   def join("lobby", _params, socket) do
-    {:ok, socket}
+    games = Lobby.all_open_games
+    {:ok, %{games: games}, socket}
   end
 
   def handle_in("create_game", %{"game_name" => game_name}, socket) do

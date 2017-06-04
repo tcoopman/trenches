@@ -5,6 +5,7 @@ type msg =
   | CreateNewGame
   | CreateNewGameSucceeded 
   | NewGameCreated of string
+  | GamesInitialized of string list
   | CreateNewGameFailed
   [@@bs.deriving {accessors}]
 
@@ -16,7 +17,8 @@ type model = {
 
 external currentUser : string option = "" [@@bs.val] [@@bs.return null_undefined_to_opt]
 
-type game_created_payload = < game_name : string Js.null_undefined [@bs.get {undefined; null}] > Js.t
+type game_created_payload = < game_name : string Js.null_undefined [@bs.get] > Js.t
+type lobby_joined_payload = < games : string array Js.null_undefined [@bs.get] > Js.t
 
 let init () =
   let user_name = currentUser in
@@ -26,11 +28,20 @@ let init () =
       let socket = Phoenix.Socket.create ~options:opts "/socket" 
       |> Phoenix.Socket.connect in
       let channel = Phoenix.Socket.channel "lobby" socket in
-      Phoenix.Channel.join "lobby" channel 
-      |> Phoenix.Channel.receive (`ok (fun _ -> print_endline "received ok"))
-      |> Phoenix.Channel.receive (`error (fun _ -> print_endline "received error"))
-      |> ignore;
-      let cmd = Cmd.call (fun callbacks ->
+      let joinCommands = Cmd.call (fun callbacks -> 
+        Phoenix.Channel.join "lobby" channel 
+        |> Phoenix.Channel.receive (`ok (fun (x: lobby_joined_payload) -> 
+          let games = x##games |> Js.Null_undefined.to_opt in
+          match games with
+            | Some gs -> 
+              !callbacks.enqueue (gamesInitialized (Array.to_list gs))
+            | None ->
+              print_endline "No games received on join???"
+        ))
+        |> Phoenix.Channel.receive (`error (fun _ -> print_endline "received error"))
+        |> ignore;
+      ) in
+      let eventCommands = Cmd.call (fun callbacks ->
         Phoenix.Channel.on "game_created" (fun (x: game_created_payload) -> 
           let optName = x##game_name |> Js.Null_undefined.to_opt in 
           match optName with
@@ -44,7 +55,7 @@ let init () =
         games = [];
         channel = Some channel
       } in
-      (model, cmd)
+      (model, Cmd.batch [eventCommands; joinCommands])
     | None ->
       let model = {
         new_game_name = "";
@@ -64,6 +75,8 @@ let update model = function
     (model, Cmd.none)
   | NewGameCreated name ->
     ({model with games = (name :: model.games)}, Cmd.none)
+  | GamesInitialized games ->
+    ({model with games = games}, Cmd.none)
   | CreateNewGame ->
       match model.channel with
         | Some c ->
