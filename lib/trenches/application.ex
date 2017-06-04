@@ -12,7 +12,13 @@ defmodule Trenches do
     ]
 
     opts = [strategy: :one_for_one, name: Trenches.Supervisor]
-    Supervisor.start_link(children, opts)
+
+    resp = Supervisor.start_link(children, opts)
+
+    # ONLY IN DEV
+    Trenches.PlayerRepo.create("thomas")
+    
+    resp
   end
 
   def service_name(service_id), do: {:via, Registry, {Trenches.Registry, service_id}}
