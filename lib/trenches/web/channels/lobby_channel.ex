@@ -12,6 +12,8 @@ defmodule Trenches.Web.LobbyChannel do
     reply = case Lobby.create_game(game_name) do
       :ok ->
         broadcast! socket, "game_created", %{game_name: game_name}
+        IO.inspect "broadcasted"
+        IO.inspect game_name
         {:reply, :ok, socket}
       {:error, reason} -> 
         {:reply, {:error, %{error: reason}}, socket}

@@ -11,6 +11,7 @@ defmodule Trenches.Lobby do
   end
 
   def create_game(name) do
+    IO.inspect name
     game = Game.new(name)
     case Supervisor.start_child(__MODULE__, [game]) do
       {:ok, _} -> :ok
