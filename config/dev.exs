@@ -13,8 +13,8 @@ config :trenches, Trenches.Web.Endpoint,
   check_origin: false,
   watchers: [
     node: ["node_modules/brunch/bin/brunch", "watch", "--stdin", cd: Path.expand("../assets", __DIR__)],
-    node: ["node_modules/.bin/bsb", "-w", cd: Path.expand("../assets", __DIR__)]
-          
+    node: ["node_modules/.bin/bsb", "-w", cd: Path.expand("../assets", __DIR__)],
+    node: ["node_modules/.bin/rollup", "-c", "-w", cd: Path.expand("../assets", __DIR__)]
   ]
 
 # ## SSL Support

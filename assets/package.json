@@ -2,8 +2,16 @@
   "repository": {},
   "license": "MIT",
   "scripts": {
+    "build:bsb": "bsb -make-world",
+    "build:js": "rollup -c",
+    "build": "run-s build:bsb build:js",
     "deploy": "brunch build --production",
-    "watch": "brunch watch --stdin"
+    "watch:bsb": "bsb -w",
+    "watch:js": "rollup -c -w",
+    "watch:brunch": "brunch watch --stdin",
+    "prewatch": "run-s build",
+    "watch": "run-p watch:brunch watch:js watch:bsb",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "dependencies": {
     "@types/phoenix": "0.0.4",
@@ -13,11 +21,16 @@
   },
   "devDependencies": {
     "babel-brunch": "6.0.6",
+    "babel-preset-env": "^1.5.1",
     "brunch": "2.10.7",
     "bs-platform": "^1.7.4",
     "bucklescript-tea": "^0.5.1",
     "clean-css-brunch": "2.10.0",
     "css-brunch": "2.10.0",
+    "npm-run-all": "^4.0.2",
+    "rollup": "^0.42.0",
+    "rollup-plugin-node-resolve": "^3.0.0",
+    "rollup-watch": "^3.2.2",
     "uglify-js-brunch": "2.1.1"
   }
 }

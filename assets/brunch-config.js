@@ -38,18 +38,23 @@ exports.config = {
   // Phoenix paths configuration
   paths: {
     // Dependencies and current project directories to watch
-    watched: ["static", "css", "js", "vendor", "lib/es6"],
+    watched: ["static", "css", "js", "vendor"],
     // Where to compile files to
     public: "../priv/static"
   },
 
   // Configure your plugins
   plugins: {
-    brunchTypescript: {
+    // brunchTypescript: {
 
-    },
+    // },
     babel: {
       // Do not use ES6 compiler in vendor code
+      presets: [['env', {
+        targets: {
+          browsers: ['last 2 versions', 'safari >= 7']
+        }
+      }]],
       ignore: [/vendor/]
     }
   },
