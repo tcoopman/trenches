@@ -29,6 +29,7 @@
     "css-brunch": "2.10.0",
     "npm-run-all": "^4.0.2",
     "rollup": "^0.42.0",
+    "rollup-plugin-commonjs": "^8.0.2",
     "rollup-plugin-node-resolve": "^3.0.0",
     "rollup-watch": "^3.2.2",
     "uglify-js-brunch": "2.1.1"
