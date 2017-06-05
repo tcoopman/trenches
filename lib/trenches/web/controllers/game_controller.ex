@@ -1,13 +1,11 @@
-defmodule Trenches.Web.LobbyController do
+defmodule Trenches.Web.GameController do
   use Trenches.Web, :controller
-
-  alias Trenches.Lobby
 
   #TODO duplicated behaviour
   plug :authenticate when action in [:index]
 
-  def index(conn, _params) do
-    render conn, "index.html", %{}
+  def show(conn, %{"name" => name}) do
+    render conn, "show.html", %{name: name}
   end
 
   defp authenticate(conn, _opts) do

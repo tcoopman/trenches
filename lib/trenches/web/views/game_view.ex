@@ -1,7 +1,9 @@
 defmodule Trenches.Web.GameView do
+  use Trenches.Web, :view
+
   alias Trenches.Game
 
-  def render("games.json", %{games: games}) do
+  def render_games(games) do
     %{
       games: Enum.map(games, &game_json/1)
     }

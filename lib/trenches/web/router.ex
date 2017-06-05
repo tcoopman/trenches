@@ -20,6 +20,7 @@ defmodule Trenches.Web.Router do
     get "/", PageController, :index
     resources "/sessions", SessionController, only: [:new, :create, :delete]
     get "/lobby", LobbyController, :index
+    get "/game/:name", GameController, :show
   end
 
   # Other scopes may use custom stacks.

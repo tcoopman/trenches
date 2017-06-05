@@ -1,0 +1,1 @@
+<script>window.currentUser = "<%= assigns[:current_user].name %>";</script>

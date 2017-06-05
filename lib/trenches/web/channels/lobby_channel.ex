@@ -7,7 +7,7 @@ defmodule Trenches.Web.LobbyChannel do
 
   def join("lobby", _params, socket) do
     games = Lobby.all_games
-    games_view = GameView.render("games.json", %{games: games})
+    games_view = GameView.render_games(games)
     {:ok, games_view, socket}
   end
 
