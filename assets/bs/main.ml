@@ -1,9 +1,10 @@
 open Tea
 
+type game_status = NotStarted | Unknown
 type game = {
   name : string;
   created_at : string;
-  status : string;
+  status : game_status;
 }
 
 type msg =
@@ -28,7 +29,10 @@ type game_created_payload = < game : game_object Js.null_undefined > Js.t
 type lobby_joined_payload = < games : game_object array Js.null_undefined > Js.t
 
 let game_object_to_game game_object =
-  { name= game_object##name ; created_at= game_object##created_at ; status= game_object##status; }
+  let to_status status =
+    if status == "not_started" then NotStarted else Unknown
+  in
+  { name= game_object##name ; created_at= game_object##created_at ; status= to_status(game_object##status); }
 
 let lobby_payload_to_game_list payload =
     let game_objects = payload##games |> Js.Null_undefined.to_opt in
@@ -129,12 +133,31 @@ let viewInvald =
 
 let view_games games_option =
   let open Html in
+  let view_status status =
+    match status with
+      | NotStarted ->
+        [i [class' "flag icon green"] [] ; text "Not started"]
+      | Unknown ->
+        [i [class' "help icon red"] [] ; text "Unknown"]
+  in
+  let view_actions status = 
+    match status with
+      | NotStarted ->
+        div [class' "extra content"] [
+          div [class' "ui basic green button"] [ text "Join game"] ;
+          div [class' "ui basic orange button"] [ text "Specate"] ;
+        ]
+      | Unknown ->
+        span [] []
+  in
   let view_game game =
-    div [class' "ui card"] [
+    div [class' "card"] [
       div [class' "content"] [
-        div [class' "right floated meta"] [ text game.created_at] ;
-        text game.name
-      ]
+        div [class' "header"] [ text game.name ];
+        div [class' "meta float right"] [ text ("Created: " ^ game.created_at)] ;
+      ] ;
+      div [class' "content"] (view_status game.status) ;
+      view_actions game.status
     ]
   in
   match games_option with
@@ -142,10 +165,10 @@ let view_games games_option =
       div [class' "ui segment"] [
         div [class' "ui active inverted dimmer"] [
           div [class' "ui text loader"] [ text "Loading"]
-        ]
+        ] ;
       ]
     | Some games ->
-        div [class' "ui link cards"] (List.map view_game games)
+        div [class' "ui cards"] (List.map view_game games)
 
 let view model =
   match model.channel with

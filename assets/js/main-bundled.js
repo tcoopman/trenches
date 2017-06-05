@@ -3264,6 +3264,12 @@ function div$2($staropt$star, $staropt$star$1, props, nodes) {
   return fullnode("", "div", key, unique, props, nodes);
 }
 
+function span($staropt$star, $staropt$star$1, props, nodes) {
+  var key = $staropt$star ? $staropt$star[0] : "";
+  var unique = $staropt$star$1 ? $staropt$star$1[0] : "";
+  return fullnode("", "span", key, unique, props, nodes);
+}
+
 function h1($staropt$star, $staropt$star$1, props, nodes) {
   var key = $staropt$star ? $staropt$star[0] : "";
   var unique = $staropt$star$1 ? $staropt$star$1[0] : "";
@@ -3274,6 +3280,12 @@ function h2($staropt$star, $staropt$star$1, props, nodes) {
   var key = $staropt$star ? $staropt$star[0] : "";
   var unique = $staropt$star$1 ? $staropt$star$1[0] : "";
   return fullnode("", "h2", key, unique, props, nodes);
+}
+
+function i($staropt$star, $staropt$star$1, props, nodes) {
+  var key = $staropt$star ? $staropt$star[0] : "";
+  var unique = $staropt$star$1 ? $staropt$star$1[0] : "";
+  return fullnode("", "i", key, unique, props, nodes);
 }
 
 function button($staropt$star, $staropt$star$1, props, nodes) {
@@ -3374,10 +3386,17 @@ function gamesInitialized(param_0) {
 }
 
 function game_object_to_game(game_object) {
+  var to_status = function (status) {
+    if (status === "not_started") {
+      return /* NotStarted */0;
+    } else {
+      return /* Unknown */1;
+    }
+  };
   return /* record */[
           /* name */game_object.name,
           /* created_at */game_object.created_at,
-          /* status */game_object.status
+          /* status */to_status(game_object.status)
         ];
 }
 
@@ -3554,9 +3573,62 @@ var viewInvald = div$2(/* None */0, /* None */0, /* [] */0, /* :: */[
     ]);
 
 function view_games(games_option) {
+  var view_status = function (status) {
+    if (status !== 0) {
+      return /* :: */[
+              i(/* None */0, /* None */0, /* :: */[
+                    class$prime("help icon red"),
+                    /* [] */0
+                  ], /* [] */0),
+              /* :: */[
+                text$1("Unknown"),
+                /* [] */0
+              ]
+            ];
+    } else {
+      return /* :: */[
+              i(/* None */0, /* None */0, /* :: */[
+                    class$prime("flag icon green"),
+                    /* [] */0
+                  ], /* [] */0),
+              /* :: */[
+                text$1("Not started"),
+                /* [] */0
+              ]
+            ];
+    }
+  };
+  var view_actions = function (status) {
+    if (status !== 0) {
+      return span(/* None */0, /* None */0, /* [] */0, /* [] */0);
+    } else {
+      return div$2(/* None */0, /* None */0, /* :: */[
+                  class$prime("extra content"),
+                  /* [] */0
+                ], /* :: */[
+                  div$2(/* None */0, /* None */0, /* :: */[
+                        class$prime("ui basic green button"),
+                        /* [] */0
+                      ], /* :: */[
+                        text$1("Join game"),
+                        /* [] */0
+                      ]),
+                  /* :: */[
+                    div$2(/* None */0, /* None */0, /* :: */[
+                          class$prime("ui basic orange button"),
+                          /* [] */0
+                        ], /* :: */[
+                          text$1("Specate"),
+                          /* [] */0
+                        ]),
+                    /* [] */0
+                  ]
+                ]);
+    }
+  };
   var view_game = function (game) {
     return div$2(/* None */0, /* None */0, /* :: */[
-                class$prime("ui card"),
+                class$prime("card"),
                 /* [] */0
               ], /* :: */[
                 div$2(/* None */0, /* None */0, /* :: */[
@@ -3564,23 +3636,38 @@ function view_games(games_option) {
                       /* [] */0
                     ], /* :: */[
                       div$2(/* None */0, /* None */0, /* :: */[
-                            class$prime("right floated meta"),
+                            class$prime("header"),
                             /* [] */0
                           ], /* :: */[
-                            text$1(game[/* created_at */1]),
+                            text$1(game[/* name */0]),
                             /* [] */0
                           ]),
                       /* :: */[
-                        text$1(game[/* name */0]),
+                        div$2(/* None */0, /* None */0, /* :: */[
+                              class$prime("meta float right"),
+                              /* [] */0
+                            ], /* :: */[
+                              text$1("Created: " + game[/* created_at */1]),
+                              /* [] */0
+                            ]),
                         /* [] */0
                       ]
                     ]),
-                /* [] */0
+                /* :: */[
+                  div$2(/* None */0, /* None */0, /* :: */[
+                        class$prime("content"),
+                        /* [] */0
+                      ], view_status(game[/* status */2])),
+                  /* :: */[
+                    view_actions(game[/* status */2]),
+                    /* [] */0
+                  ]
+                ]
               ]);
   };
   if (games_option) {
     return div$2(/* None */0, /* None */0, /* :: */[
-                class$prime("ui link cards"),
+                class$prime("ui cards"),
                 /* [] */0
               ], map(view_game, games_option[0]));
   } else {
