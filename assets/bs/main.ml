@@ -15,6 +15,7 @@ type msg =
   | GamesInitialized of game list
   | CreateNewGameFailed of string
   | RemoveErrorFromCreateNewGame
+  | JoinGame of string
   [@@bs.deriving {accessors}]
 
 type model = {
@@ -92,6 +93,9 @@ let init () =
     | None ->
       (empty_model, Cmd.none)
 
+external window : Dom.window = "" [@@bs.val]
+external setLocation : Dom.window -> string -> unit = "location" [@@bs.set]
+
 let update model = function
   | UpdateNewGameName name -> 
     ({model with new_game_name = name}, Cmd.none)
@@ -111,6 +115,9 @@ let update model = function
     end
   | GamesInitialized games ->
     ({model with games = Some games}, Cmd.none)
+  | JoinGame name ->
+    setLocation window ("/game/" ^ name);
+    (model, Cmd.none)
   | CreateNewGame ->
       match model.channel with
         | Some c ->
@@ -148,12 +155,12 @@ let view_games games_option =
       | Unknown ->
         [i [class' "help icon red"] [] ; text "Unknown"]
   in
-  let view_actions status = 
+  let view_actions name status = 
     match status with
       | NotStarted ->
         div [class' "extra content"] [
-          div [class' "ui basic green button"] [ text "Join game"] ;
-          div [class' "ui basic orange button"] [ text "Specate"] ;
+          button [class' "ui basic green button"; onClick (joinGame name)] [ text "Join game"] ;
+          button [class' "ui basic orange button"] [ text "Specate"] ;
         ]
       | Unknown -> noNode
   in
@@ -167,7 +174,7 @@ let view_games games_option =
         div [class' "meta float right"] [ text ("Created: " ^ (format_date game.created_at))] ;
       ] ;
       div [class' "content"] (view_status game.status) ;
-      view_actions game.status
+      view_actions game.name game.status
     ]
   in
   match games_option with
@@ -186,7 +193,7 @@ let view_create_form model =
   let view_creation_error = function
     | Some error ->
         div [class' "ui visible error message"] [
-          i [class' "close icon"; onClick RemoveErrorFromCreateNewGame] [];
+          i [class' "close icon"; onClick removeErrorFromCreateNewGame] [];
           div [class' "header"] [text "There was an error creating the game"] ;
           p [] [text error]
         ];

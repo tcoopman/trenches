@@ -3391,6 +3391,10 @@ function createNewGameFailed(param_0) {
   return /* CreateNewGameFailed */__(3, [param_0]);
 }
 
+function joinGame(param_0) {
+  return /* JoinGame */__(4, [param_0]);
+}
+
 function game_object_to_game(game_object) {
   var to_status = function (status) {
     if (status === "not_started") {
@@ -3588,6 +3592,12 @@ function update(model, param) {
                   ],
                   none
                 ];
+      case 4 : 
+          window.location = "/game/" + param[0];
+          return /* tuple */[
+                  model,
+                  none
+                ];
       
     }
   }
@@ -3628,7 +3638,7 @@ function view_games(games_option) {
             ];
     }
   };
-  var view_actions = function (status) {
+  var view_actions = function (name$$1, status) {
     if (status !== 0) {
       return noNode$1;
     } else {
@@ -3636,15 +3646,18 @@ function view_games(games_option) {
                   class$prime("extra content"),
                   /* [] */0
                 ], /* :: */[
-                  div$2(/* None */0, /* None */0, /* :: */[
+                  button(/* None */0, /* None */0, /* :: */[
                         class$prime("ui basic green button"),
-                        /* [] */0
+                        /* :: */[
+                          onClick(/* JoinGame */__(4, [name$$1])),
+                          /* [] */0
+                        ]
                       ], /* :: */[
                         text$1("Join game"),
                         /* [] */0
                       ]),
                   /* :: */[
-                    div$2(/* None */0, /* None */0, /* :: */[
+                    button(/* None */0, /* None */0, /* :: */[
                           class$prime("ui basic orange button"),
                           /* [] */0
                         ], /* :: */[
@@ -3689,7 +3702,7 @@ function view_games(games_option) {
                         /* [] */0
                       ], view_status(game[/* status */2])),
                   /* :: */[
-                    view_actions(game[/* status */2]),
+                    view_actions(game[/* name */0], game[/* status */2]),
                     /* [] */0
                   ]
                 ]
@@ -3885,6 +3898,7 @@ exports.newGameCreated = newGameCreated;
 exports.gamesInitialized = gamesInitialized;
 exports.createNewGameFailed = createNewGameFailed;
 exports.removeErrorFromCreateNewGame = removeErrorFromCreateNewGame;
+exports.joinGame = joinGame;
 exports.game_object_to_game = game_object_to_game;
 exports.lobby_payload_to_game_list = lobby_payload_to_game_list;
 exports.init = init;
