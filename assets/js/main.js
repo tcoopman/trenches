@@ -2,6 +2,14 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
+function __(tag, block) {
+  block.tag = tag;
+  return block;
+}
+
+
+/* No side effect */
+
 var failure = /* tuple */[
   "Failure",
   -2
@@ -1674,14 +1682,6 @@ function polyfills() {
 
 /* No side effect */
 
-function __(tag, block) {
-  block.tag = tag;
-  return block;
-}
-
-
-/* No side effect */
-
 function caml_equal(_a, _b) {
   while(true) {
     var b = _b;
@@ -3342,7 +3342,8 @@ function init() {
   var empty_model = /* record */[
     /* game_name : None */0,
     /* join_error : None */0,
-    /* joined : false */0
+    /* joined : false */0,
+    /* game : None */0
   ];
   var match = currentUser;
   var match$1 = game_name;
@@ -3370,18 +3371,28 @@ function init() {
                 }).receive("error", function (p$$1) {
                 if (is_nil_undef(p$$1)) {
                   debugger;
-                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */["Unknown error"]);
+                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */__(0, ["Unknown error"]));
                 } else {
-                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */[p$$1]);
+                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */__(0, [p$$1]));
                 }
               });
+          _3(Channel[/* on */1], "tick", function (p$$1) {
+                var game_option = p$$1.game;
+                if (is_nil_undef(game_option)) {
+                  debugger;
+                  return /* () */0;
+                } else {
+                  return _1(callbacks[0][/* enqueue */0], /* Tick */__(1, [/* record */[/* countdown_clock */game_option.countdown_clock]]));
+                }
+              }, channel);
           return /* () */0;
         });
     return /* tuple */[
             /* record */[
               /* game_name : Some */[match$1],
               /* join_error : None */0,
-              /* joined : false */0
+              /* joined : false */0,
+              /* game : None */0
             ],
             cmds
           ];
@@ -3389,12 +3400,23 @@ function init() {
 }
 
 function update(model, param) {
-  if (param) {
+  if (typeof param === "number") {
     return /* tuple */[
             /* record */[
               /* game_name */model[/* game_name */0],
-              /* join_error : Some */[param[0]],
-              /* joined */model[/* joined */2]
+              /* join_error */model[/* join_error */1],
+              /* joined : true */1,
+              /* game */model[/* game */3]
+            ],
+            none
+          ];
+  } else if (param.tag) {
+    return /* tuple */[
+            /* record */[
+              /* game_name */model[/* game_name */0],
+              /* join_error */model[/* join_error */1],
+              /* joined */model[/* joined */2],
+              /* game : Some */[param[0]]
             ],
             none
           ];
@@ -3402,8 +3424,9 @@ function update(model, param) {
     return /* tuple */[
             /* record */[
               /* game_name */model[/* game_name */0],
-              /* join_error */model[/* join_error */1],
-              /* joined : true */1
+              /* join_error : Some */[param[0]],
+              /* joined */model[/* joined */2],
+              /* game */model[/* game */3]
             ],
             none
           ];
@@ -3412,6 +3435,14 @@ function update(model, param) {
 
 function subscriptions() {
   return none$1;
+}
+
+function view_game(game) {
+  if (game) {
+    return text$1(string_of_int(game[0][/* countdown_clock */0]));
+  } else {
+    return text$1("No game???");
+  }
 }
 
 function view(model) {
@@ -3437,7 +3468,7 @@ function view(model) {
                 ]
               ]);
   } else {
-    return text$1("ok");
+    return view_game(model[/* game */3]);
   }
 }
 

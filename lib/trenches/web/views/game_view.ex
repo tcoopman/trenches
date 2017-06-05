@@ -18,4 +18,11 @@ defmodule Trenches.Web.GameView do
       nb_players: Map.keys(players) |> Enum.count
     }
   end
+
+  def render_full_game(%Game{} = game) do
+    game
+    |> render_game
+    |> Map.put(:players, game.players)
+    |> Map.put(:countdown_clock, game.countdown_clock)
+  end
 end

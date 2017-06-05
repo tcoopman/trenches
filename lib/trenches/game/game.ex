@@ -9,7 +9,7 @@ defmodule Trenches.Game do
     name: nil,
     created_at: nil,
     created_by: nil,
-    countdown_clock: 5
+    countdown_clock: 50
   ]
 
   def new(name, %Player{} = creator) do
@@ -43,7 +43,7 @@ defmodule Trenches.Game do
       :waiting_for_players -> game
       :countdown_to_start -> 
         countdown = game.countdown_clock - 1
-        if countdown = 0 do
+        if countdown == 0 do
           %{game | countdown_clock: countdown, status: :in_progress}
         else
           %{game | countdown_clock: countdown}

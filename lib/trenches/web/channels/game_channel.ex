@@ -43,8 +43,8 @@ defmodule Trenches.Web.GameChannel do
     end
   end
 
-  def handle_info({:tick, players}, socket) do
-    broadcast socket, "tick", %{players: Map.values(players)}
+  def handle_info({:tick, game}, socket) do
+    broadcast socket, "tick", %{game: Trenches.Web.GameView.render_full_game(game)}
     {:noreply, socket}
   end
 end
