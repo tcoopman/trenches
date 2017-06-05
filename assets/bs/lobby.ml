@@ -200,7 +200,7 @@ let view_create_form model =
     | None -> noNode
   in
   let input_class = function
-    | Some error -> "field error"
+    | Some _ -> "field error"
     | None -> "field"
   in
   div [id "new-game"; class' "ui form"] [
