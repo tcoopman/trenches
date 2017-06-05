@@ -8,7 +8,7 @@ defmodule Trenches.Web.SessionController do
   end
 
   def create(conn, %{"user" => user}) do
-    case PlayerRepo.get(user) do
+    case PlayerRepo.get_by_name(user) do
       {:ok, player} ->
         conn
         |> Trenches.Web.Auth.login(player)

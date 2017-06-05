@@ -17,6 +17,7 @@ defmodule Trenches do
 
     # ONLY IN DEV
     Trenches.PlayerRepo.create("thomas")
+    Trenches.PlayerRepo.create("michel")
     
     resp
   end

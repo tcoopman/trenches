@@ -2,7 +2,7 @@ defmodule Trenches.Web.GameController do
   use Trenches.Web, :controller
 
   #TODO duplicated behaviour
-  plug :authenticate when action in [:index]
+  plug :authenticate when action in [:show]
 
   def show(conn, %{"name" => name}) do
     render conn, "show.html", %{name: name}
