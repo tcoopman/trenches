@@ -13,7 +13,7 @@
 // If you no longer want to use a dependency, remember
 // to also remove its path from "config.paths.watched".
 import "phoenix_html"
-import {main as lobbyMain} from "./lobby-bundled";
+import {game, lobby} from "./main";
 
 
 // Import local files
@@ -30,7 +30,11 @@ function handleDOMContentLoaded() {
 
     if (typeof viewName === 'string') {
         if (viewName === 'LobbyIndexView') {
-            lobbyMain(document.body);
+            lobby(document.body);
+            return;
+        } else if (viewName === 'GameShowView') {
+            game(document.body);
+            return;
         } else {
             const ViewClass = loadView(viewName);
             const view = new ViewClass();

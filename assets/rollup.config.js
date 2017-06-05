@@ -2,9 +2,9 @@ import node_resolve from 'rollup-plugin-node-resolve';
 import commonjs from 'rollup-plugin-commonjs';
 
 export default {
-    entry: './lib/es6/bs/lobby.js',
+    entry: './lib/es6/bs/main.js',
     format: 'cjs',
-    dest: './js/lobby-bundled.js',
+    dest: './js/main.js',
     plugins: [
         node_resolve({module: true, browser: true}),
         commonjs({
