@@ -3294,18 +3294,6 @@ function label($staropt$star, $staropt$star$1, props, nodes) {
   return fullnode("", "label", key, unique, props, nodes);
 }
 
-function ul($staropt$star, $staropt$star$1, props, nodes) {
-  var key = $staropt$star ? $staropt$star[0] : "";
-  var unique = $staropt$star$1 ? $staropt$star$1[0] : "";
-  return fullnode("", "ul", key, unique, props, nodes);
-}
-
-function li($staropt$star, $staropt$star$1, props, nodes) {
-  var key = $staropt$star ? $staropt$star[0] : "";
-  var unique = $staropt$star$1 ? $staropt$star$1[0] : "";
-  return fullnode("", "li", key, unique, props, nodes);
-}
-
 function id$1(str) {
   return /* RawProp */__(0, [
             "id",
@@ -3409,7 +3397,7 @@ function init() {
     return /* tuple */[
             /* record */[
               /* new_game_name */"",
-              /* games : [] */0,
+              /* games : None */0,
               /* channel : None */0
             ],
             none
@@ -3452,7 +3440,7 @@ function init() {
     var model_002 = /* channel : Some */[channel];
     var model = /* record */[
       /* new_game_name */"",
-      /* games : [] */0,
+      /* games : None */0,
       model_002
     ];
     return /* tuple */[
@@ -3523,22 +3511,30 @@ function update(model, param) {
                   none
                 ];
       case 1 : 
-          return /* tuple */[
-                  /* record */[
-                    /* new_game_name */model[/* new_game_name */0],
-                    /* games : :: */[
-                      param[0],
-                      model[/* games */1]
+          var match$1 = model[/* games */1];
+          if (match$1) {
+            return /* tuple */[
+                    /* record */[
+                      /* new_game_name */model[/* new_game_name */0],
+                      /* games : Some */[/* :: */[
+                          param[0],
+                          match$1[0]
+                        ]],
+                      /* channel */model[/* channel */2]
                     ],
-                    /* channel */model[/* channel */2]
-                  ],
-                  none
-                ];
+                    none
+                  ];
+          } else {
+            return /* tuple */[
+                    model,
+                    none
+                  ];
+          }
       case 2 : 
           return /* tuple */[
                   /* record */[
                     /* new_game_name */model[/* new_game_name */0],
-                    /* games */param[0],
+                    /* games : Some */[param[0]],
                     /* channel */model[/* channel */2]
                   ],
                   none
@@ -3556,6 +3552,59 @@ var viewInvald = div$2(/* None */0, /* None */0, /* [] */0, /* :: */[
       text$1("Initializing..."),
       /* [] */0
     ]);
+
+function view_games(games_option) {
+  var view_game = function (game) {
+    return div$2(/* None */0, /* None */0, /* :: */[
+                class$prime("ui card"),
+                /* [] */0
+              ], /* :: */[
+                div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("content"),
+                      /* [] */0
+                    ], /* :: */[
+                      div$2(/* None */0, /* None */0, /* :: */[
+                            class$prime("right floated meta"),
+                            /* [] */0
+                          ], /* :: */[
+                            text$1(game[/* created_at */1]),
+                            /* [] */0
+                          ]),
+                      /* :: */[
+                        text$1(game[/* name */0]),
+                        /* [] */0
+                      ]
+                    ]),
+                /* [] */0
+              ]);
+  };
+  if (games_option) {
+    return div$2(/* None */0, /* None */0, /* :: */[
+                class$prime("ui link cards"),
+                /* [] */0
+              ], map(view_game, games_option[0]));
+  } else {
+    return div$2(/* None */0, /* None */0, /* :: */[
+                class$prime("ui segment"),
+                /* [] */0
+              ], /* :: */[
+                div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("ui active inverted dimmer"),
+                      /* [] */0
+                    ], /* :: */[
+                      div$2(/* None */0, /* None */0, /* :: */[
+                            class$prime("ui text loader"),
+                            /* [] */0
+                          ], /* :: */[
+                            text$1("Loading"),
+                            /* [] */0
+                          ]),
+                      /* [] */0
+                    ]),
+                /* [] */0
+              ]);
+  }
+}
 
 function view(model) {
   var match = model[/* channel */2];
@@ -3632,12 +3681,7 @@ function view(model) {
                             /* [] */0
                           ]),
                       /* :: */[
-                        ul(/* None */0, /* None */0, /* [] */0, map(function (game) {
-                                  return li(/* None */0, /* None */0, /* [] */0, /* :: */[
-                                              text$1(game[/* name */0]),
-                                              /* [] */0
-                                            ]);
-                                }, model[/* games */1])),
+                        view_games(model[/* games */1]),
                         /* [] */0
                       ]
                     ]
@@ -3681,5 +3725,6 @@ exports.init = init;
 exports.update = update;
 exports.subscriptions = subscriptions;
 exports.viewInvald = viewInvald;
+exports.view_games = view_games;
 exports.view = view;
 exports.main = main;

@@ -17,7 +17,7 @@ type msg =
 
 type model = {
   new_game_name : string;
-  games: game list;
+  games: (game list) option;
   channel: Phoenix.Channel.t option;
 }
 
@@ -72,14 +72,14 @@ let init () =
       ) in
       let model = {
         new_game_name = "";
-        games = [];
+        games = None;
         channel = Some channel
       } in
       (model, Cmd.batch [eventCommands; joinCommands])
     | None ->
       let model = {
         new_game_name = "";
-        games = [];
+        games = None;
         channel = None
       } in
       (model, Cmd.none)
@@ -94,9 +94,14 @@ let update model = function
     print_endline "NEW GAME CREATED Failed";
     (model, Cmd.none)
   | NewGameCreated game ->
-    ({model with games = (game :: model.games)}, Cmd.none)
+    begin match model.games with
+      | None -> 
+        (model, Cmd.none)
+      | Some games -> 
+        ({model with games = Some (game :: games)}, Cmd.none)
+    end
   | GamesInitialized games ->
-    ({model with games = games}, Cmd.none)
+    ({model with games = Some games}, Cmd.none)
   | CreateNewGame ->
       match model.channel with
         | Some c ->
@@ -122,6 +127,26 @@ let viewInvald =
   let open Html in
   div [] [ text "Initializing..."]
 
+let view_games games_option =
+  let open Html in
+  let view_game game =
+    div [class' "ui card"] [
+      div [class' "content"] [
+        div [class' "right floated meta"] [ text game.created_at] ;
+        text game.name
+      ]
+    ]
+  in
+  match games_option with
+    | None ->
+      div [class' "ui segment"] [
+        div [class' "ui active inverted dimmer"] [
+          div [class' "ui text loader"] [ text "Loading"]
+        ]
+      ]
+    | Some games ->
+        div [class' "ui link cards"] (List.map view_game games)
+
 let view model =
   match model.channel with
     | None -> viewInvald
@@ -144,9 +169,7 @@ let view model =
             button [class' "ui button"; onClick createNewGame] [ text "Create new game"]
           ] ;
           h2 [class' "ui header"] [ text "Open games"] ;
-          ul [] (List.map (fun game -> 
-            li [] [ text game.name]
-          ) model.games)
+          view_games model.games
         ]
 
 let main =
