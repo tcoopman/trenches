@@ -23,7 +23,7 @@ defmodule Trenches.Web.UserSocket do
   # See `Phoenix.Token` documentation for examples in
   # performing token verification on connect.
   def connect(%{"player_name" => player_name}, socket) do
-    case PlayerRepo.get(player_name) do
+    case PlayerRepo.get_by_name(player_name) do
       {:ok, player} ->
         {:ok, assign(socket, :player, player)}
       {:error, _} ->

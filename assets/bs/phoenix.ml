@@ -1,19 +1,17 @@
 module Channel : sig
     type t
     type joined_t
-    val join : string -> t -> joined_t
+    val join : t -> joined_t
     val on : string -> ('a Js.t -> unit) -> t -> t
-    external receive : ([`ok of 'a Js.t -> unit| `error of 'b Js.t -> unit][@bs.string]) -> joined_t = "" [@@bs.send.pipe: joined_t]
+    external receive : ([`ok of 'a Js.t -> unit| `error of 'b -> unit][@bs.string]) -> joined_t = "" [@@bs.send.pipe: joined_t]
     val push : string -> 'a Js.t -> t -> joined_t 
 end = struct
     type t
     type joined_t
 
-    external join : t -> string -> joined_t = "join" [@@bs.send]
-    let join name channel =
-        join channel name
+    external join : t -> joined_t = "join" [@@bs.send]
 
-    external receive : ([`ok of 'a Js.t -> unit | `error of 'b Js.t -> unit][@bs.string]) -> joined_t = "" [@@bs.send.pipe: joined_t]
+    external receive : ([`ok of 'a Js.t -> unit | `error of 'b -> unit][@bs.string]) -> joined_t = "" [@@bs.send.pipe: joined_t]
 
     external on : string -> ('a Js.t -> unit) -> t = "" [@@bs.send.pipe: t]
     external push : t -> string -> 'a Js.t -> joined_t = "" [@@bs.send]

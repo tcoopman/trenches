@@ -8,7 +8,7 @@ defmodule Trenches.Web.Auth do
 
   def call(conn, _) do
     user_name = get_session(conn, :user_name)
-    case user_name && PlayerRepo.get(user_name) do
+    case user_name && PlayerRepo.get_by_name(user_name) do
       {:ok, player} -> assign(conn, :current_user, player)
       {:error, _} -> conn
     end

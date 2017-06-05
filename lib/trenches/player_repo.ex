@@ -11,7 +11,7 @@ defmodule Trenches.PlayerRepo do
     GenServer.call(:player_repo, {:create, name})
   end
 
-  def get(name) do
+  def get_by_name(name) do
     GenServer.call(:player_repo, {:get, name})
   end
 

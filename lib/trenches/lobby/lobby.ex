@@ -23,4 +23,15 @@ defmodule Trenches.Lobby do
     |> Enum.map(fn {_, pid, _, _} -> pid end)
     |> Enum.map(&(GameServer.game(&1)))
   end
+
+  def get(name) do
+    found = Supervisor.which_children(__MODULE__)
+    |> Enum.filter(fn {_, pid, _, _} -> GameServer.game(pid).name == name end)
+    |> Enum.map(fn {_, pid, _, _} -> GameServer.game(pid) end)
+
+    case found do
+      [game] -> {:ok, game}
+      _ -> {:error, "No game found with name #{name}"}
+    end
+  end
 end

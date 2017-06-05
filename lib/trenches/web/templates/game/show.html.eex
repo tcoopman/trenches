@@ -1,1 +1,4 @@
-<script>window.currentUser = "<%= assigns[:current_user].name %>";</script>
+<script>
+    window.currentUser = "<%= assigns[:current_user].name %>";
+    window.game_name = "<%= @name %>";
+</script>

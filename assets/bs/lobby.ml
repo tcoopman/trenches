@@ -68,7 +68,7 @@ let init () =
       |> Phoenix.Socket.connect in
       let channel = Phoenix.Socket.channel "lobby" socket in
       let joinCommands = Cmd.call (fun callbacks -> 
-        Phoenix.Channel.join "lobby" channel 
+        Phoenix.Channel.join channel 
         |> Phoenix.Channel.receive (`ok (fun (x: lobby_joined_payload) -> 
           match lobby_payload_to_game_list x with
             | Some games ->

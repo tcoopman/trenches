@@ -5,10 +5,10 @@ defmodule Trenches.Web.GameChannel do
   alias Trenches.Lobby
   alias Trenches.PlayerRepo
 
-  def join("game:" <> game_name, %{"player_id" => player_id}, socket) do
+  def join("game:" <> game_name, %{}, socket) do
+    player = socket.assigns[:player]
     with {:ok, game_id} <- Lobby.get(game_name),
-         {:ok, player} <- PlayerRepo.get(player_id),
-         :ok <- Game.join(game_id, player)
+         {:ok, _game} <- Game.join(game_id, player)
     do
       socket = assign(socket, :game_name, game_name)
       {:ok, socket}
