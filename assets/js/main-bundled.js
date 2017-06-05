@@ -3264,10 +3264,10 @@ function div$2($staropt$star, $staropt$star$1, props, nodes) {
   return fullnode("", "div", key, unique, props, nodes);
 }
 
-function span($staropt$star, $staropt$star$1, props, nodes) {
+function p($staropt$star, $staropt$star$1, props, nodes) {
   var key = $staropt$star ? $staropt$star[0] : "";
   var unique = $staropt$star$1 ? $staropt$star$1[0] : "";
-  return fullnode("", "span", key, unique, props, nodes);
+  return fullnode("", "p", key, unique, props, nodes);
 }
 
 function h1($staropt$star, $staropt$star$1, props, nodes) {
@@ -3369,6 +3369,8 @@ function onClick(msg) {
   return onMsg("click", msg);
 }
 
+var noNode$1 = noNode;
+
 
 /* No side effect */
 
@@ -3385,6 +3387,10 @@ function gamesInitialized(param_0) {
   return /* GamesInitialized */__(2, [param_0]);
 }
 
+function createNewGameFailed(param_0) {
+  return /* CreateNewGameFailed */__(3, [param_0]);
+}
+
 function game_object_to_game(game_object) {
   var to_status = function (status) {
     if (status === "not_started") {
@@ -3395,7 +3401,7 @@ function game_object_to_game(game_object) {
   };
   return /* record */[
           /* name */game_object.name,
-          /* created_at */game_object.created_at,
+          /* created_at */new Date(game_object.created_at),
           /* status */to_status(game_object.status)
         ];
 }
@@ -3416,6 +3422,7 @@ function init() {
     return /* tuple */[
             /* record */[
               /* new_game_name */"",
+              /* create_error : None */0,
               /* games : None */0,
               /* channel : None */0
             ],
@@ -3456,11 +3463,12 @@ function init() {
               }, channel);
           return /* () */0;
         });
-    var model_002 = /* channel : Some */[channel];
+    var model_003 = /* channel : Some */[channel];
     var model = /* record */[
       /* new_game_name */"",
+      /* create_error : None */0,
       /* games : None */0,
-      model_002
+      model_003
     ];
     return /* tuple */[
             model,
@@ -3479,7 +3487,7 @@ function update(model, param) {
   if (typeof param === "number") {
     switch (param) {
       case 0 : 
-          var match = model[/* channel */2];
+          var match = model[/* channel */3];
           if (match) {
             var c = match[0];
             var cmd = call(function (callbacks) {
@@ -3488,8 +3496,13 @@ function update(model, param) {
                   };
                   _3(Channel[/* push */2], "create_game", payload, c).receive("ok", function () {
                           return _1(callbacks[0][/* enqueue */0], /* CreateNewGameSucceeded */1);
-                        }).receive("error", function () {
-                        return _1(callbacks[0][/* enqueue */0], /* CreateNewGameFailed */2);
+                        }).receive("error", function (p$$1) {
+                        var error_opt = p$$1.error;
+                        if (is_nil_undef(error_opt)) {
+                          return _1(callbacks[0][/* enqueue */0], /* CreateNewGameFailed */__(3, ["Unknown error"]));
+                        } else {
+                          return _1(callbacks[0][/* enqueue */0], /* CreateNewGameFailed */__(3, [error_opt]));
+                        }
                       });
                   return /* () */0;
                 });
@@ -3511,9 +3524,13 @@ function update(model, param) {
                   none
                 ];
       case 2 : 
-          console.log("NEW GAME CREATED Failed");
           return /* tuple */[
-                  model,
+                  /* record */[
+                    /* new_game_name */model[/* new_game_name */0],
+                    /* create_error : None */0,
+                    /* games */model[/* games */2],
+                    /* channel */model[/* channel */3]
+                  ],
                   none
                 ];
       
@@ -3524,22 +3541,24 @@ function update(model, param) {
           return /* tuple */[
                   /* record */[
                     /* new_game_name */param[0],
-                    /* games */model[/* games */1],
-                    /* channel */model[/* channel */2]
+                    /* create_error */model[/* create_error */1],
+                    /* games */model[/* games */2],
+                    /* channel */model[/* channel */3]
                   ],
                   none
                 ];
       case 1 : 
-          var match$1 = model[/* games */1];
+          var match$1 = model[/* games */2];
           if (match$1) {
             return /* tuple */[
                     /* record */[
                       /* new_game_name */model[/* new_game_name */0],
+                      /* create_error */model[/* create_error */1],
                       /* games : Some */[/* :: */[
                           param[0],
                           match$1[0]
                         ]],
-                      /* channel */model[/* channel */2]
+                      /* channel */model[/* channel */3]
                     ],
                     none
                   ];
@@ -3553,8 +3572,19 @@ function update(model, param) {
           return /* tuple */[
                   /* record */[
                     /* new_game_name */model[/* new_game_name */0],
+                    /* create_error */model[/* create_error */1],
                     /* games : Some */[param[0]],
-                    /* channel */model[/* channel */2]
+                    /* channel */model[/* channel */3]
+                  ],
+                  none
+                ];
+      case 3 : 
+          return /* tuple */[
+                  /* record */[
+                    /* new_game_name */model[/* new_game_name */0],
+                    /* create_error : Some */[param[0]],
+                    /* games */model[/* games */2],
+                    /* channel */model[/* channel */3]
                   ],
                   none
                 ];
@@ -3600,7 +3630,7 @@ function view_games(games_option) {
   };
   var view_actions = function (status) {
     if (status !== 0) {
-      return span(/* None */0, /* None */0, /* [] */0, /* [] */0);
+      return noNode$1;
     } else {
       return div$2(/* None */0, /* None */0, /* :: */[
                   class$prime("extra content"),
@@ -3647,7 +3677,7 @@ function view_games(games_option) {
                               class$prime("meta float right"),
                               /* [] */0
                             ], /* :: */[
-                              text$1("Created: " + game[/* created_at */1]),
+                              text$1("Created: " + game[/* created_at */1].toDateString()),
                               /* [] */0
                             ]),
                         /* [] */0
@@ -3693,8 +3723,101 @@ function view_games(games_option) {
   }
 }
 
+function view_create_form(model) {
+  var view_creation_error = function (param) {
+    if (param) {
+      return div$2(/* None */0, /* None */0, /* :: */[
+                  class$prime("ui visible error message"),
+                  /* [] */0
+                ], /* :: */[
+                  i(/* None */0, /* None */0, /* :: */[
+                        class$prime("close icon"),
+                        /* :: */[
+                          onClick(/* RemoveErrorFromCreateNewGame */2),
+                          /* [] */0
+                        ]
+                      ], /* [] */0),
+                  /* :: */[
+                    div$2(/* None */0, /* None */0, /* :: */[
+                          class$prime("header"),
+                          /* [] */0
+                        ], /* :: */[
+                          text$1("There was an error creating the game"),
+                          /* [] */0
+                        ]),
+                    /* :: */[
+                      p(/* None */0, /* None */0, /* [] */0, /* :: */[
+                            text$1(param[0]),
+                            /* [] */0
+                          ]),
+                      /* [] */0
+                    ]
+                  ]
+                ]);
+    } else {
+      return noNode$1;
+    }
+  };
+  var input_class = function (param) {
+    if (param) {
+      return "field error";
+    } else {
+      return "field";
+    }
+  };
+  return div$2(/* None */0, /* None */0, /* :: */[
+              id$1("new-game"),
+              /* :: */[
+                class$prime("ui form"),
+                /* [] */0
+              ]
+            ], /* :: */[
+              div$2(/* None */0, /* None */0, /* :: */[
+                    class$prime(input_class(model[/* create_error */1])),
+                    /* [] */0
+                  ], /* :: */[
+                    label(/* None */0, /* None */0, /* [] */0, /* :: */[
+                          text$1("Game name"),
+                          /* [] */0
+                        ]),
+                    /* :: */[
+                      input$prime(/* None */0, /* None */0, /* :: */[
+                            type$prime("text"),
+                            /* :: */[
+                              name("game-name"),
+                              /* :: */[
+                                placeholder("Gamen name"),
+                                /* :: */[
+                                  onInput(/* None */0, updateNewGameName),
+                                  /* [] */0
+                                ]
+                              ]
+                            ]
+                          ], /* [] */0),
+                      /* [] */0
+                    ]
+                  ]),
+              /* :: */[
+                view_creation_error(model[/* create_error */1]),
+                /* :: */[
+                  button(/* None */0, /* None */0, /* :: */[
+                        class$prime("ui button"),
+                        /* :: */[
+                          onClick(/* CreateNewGame */0),
+                          /* [] */0
+                        ]
+                      ], /* :: */[
+                        text$1("Create new game"),
+                        /* [] */0
+                      ]),
+                  /* [] */0
+                ]
+              ]
+            ]);
+}
+
 function view(model) {
-  var match = model[/* channel */2];
+  var match = model[/* channel */3];
   if (match) {
     return div$2(/* None */0, /* None */0, /* [] */0, /* :: */[
                 h1(/* None */0, /* None */0, /* :: */[
@@ -3713,52 +3836,7 @@ function view(model) {
                         /* [] */0
                       ]),
                   /* :: */[
-                    div$2(/* None */0, /* None */0, /* :: */[
-                          id$1("new-game"),
-                          /* :: */[
-                            class$prime("ui form"),
-                            /* [] */0
-                          ]
-                        ], /* :: */[
-                          div$2(/* None */0, /* None */0, /* :: */[
-                                class$prime("field"),
-                                /* [] */0
-                              ], /* :: */[
-                                label(/* None */0, /* None */0, /* [] */0, /* :: */[
-                                      text$1("Game name"),
-                                      /* [] */0
-                                    ]),
-                                /* :: */[
-                                  input$prime(/* None */0, /* None */0, /* :: */[
-                                        type$prime("text"),
-                                        /* :: */[
-                                          name("game-name"),
-                                          /* :: */[
-                                            placeholder("Gamen name"),
-                                            /* :: */[
-                                              onInput(/* None */0, updateNewGameName),
-                                              /* [] */0
-                                            ]
-                                          ]
-                                        ]
-                                      ], /* [] */0),
-                                  /* [] */0
-                                ]
-                              ]),
-                          /* :: */[
-                            button(/* None */0, /* None */0, /* :: */[
-                                  class$prime("ui button"),
-                                  /* :: */[
-                                    onClick(/* CreateNewGame */0),
-                                    /* [] */0
-                                  ]
-                                ], /* :: */[
-                                  text$1("Create new game"),
-                                  /* [] */0
-                                ]),
-                            /* [] */0
-                          ]
-                        ]),
+                    view_create_form(model),
                     /* :: */[
                       h2(/* None */0, /* None */0, /* :: */[
                             class$prime("ui header"),
@@ -3768,7 +3846,7 @@ function view(model) {
                             /* [] */0
                           ]),
                       /* :: */[
-                        view_games(model[/* games */1]),
+                        view_games(model[/* games */2]),
                         /* [] */0
                       ]
                     ]
@@ -3795,7 +3873,7 @@ var createNewGame = /* CreateNewGame */0;
 
 var createNewGameSucceeded = /* CreateNewGameSucceeded */1;
 
-var createNewGameFailed = /* CreateNewGameFailed */2;
+var removeErrorFromCreateNewGame = /* RemoveErrorFromCreateNewGame */2;
 
 
 /* viewInvald Not a pure module */
@@ -3806,6 +3884,7 @@ exports.createNewGameSucceeded = createNewGameSucceeded;
 exports.newGameCreated = newGameCreated;
 exports.gamesInitialized = gamesInitialized;
 exports.createNewGameFailed = createNewGameFailed;
+exports.removeErrorFromCreateNewGame = removeErrorFromCreateNewGame;
 exports.game_object_to_game = game_object_to_game;
 exports.lobby_payload_to_game_list = lobby_payload_to_game_list;
 exports.init = init;
@@ -3813,5 +3892,6 @@ exports.update = update;
 exports.subscriptions = subscriptions;
 exports.viewInvald = viewInvald;
 exports.view_games = view_games;
+exports.view_create_form = view_create_form;
 exports.view = view;
 exports.main = main;

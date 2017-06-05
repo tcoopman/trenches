@@ -3,7 +3,7 @@ open Tea
 type game_status = NotStarted | Unknown
 type game = {
   name : string;
-  created_at : string;
+  created_at : Js.Date.t;
   status : game_status;
 }
 
@@ -13,11 +13,13 @@ type msg =
   | CreateNewGameSucceeded 
   | NewGameCreated of game
   | GamesInitialized of game list
-  | CreateNewGameFailed
+  | CreateNewGameFailed of string
+  | RemoveErrorFromCreateNewGame
   [@@bs.deriving {accessors}]
 
 type model = {
   new_game_name : string;
+  create_error: string option;
   games: (game list) option;
   channel: Phoenix.Channel.t option;
 }
@@ -27,12 +29,16 @@ external currentUser : string option = "" [@@bs.val] [@@bs.return null_undefined
 type game_object = < name : string ; created_at : string ; status : string > Js.t
 type game_created_payload = < game : game_object Js.null_undefined > Js.t
 type lobby_joined_payload = < games : game_object array Js.null_undefined > Js.t
+type game_created_error_payload = < error : string Js.null_undefined > Js.t
 
 let game_object_to_game game_object =
   let to_status status =
     if status == "not_started" then NotStarted else Unknown
   in
-  { name= game_object##name ; created_at= game_object##created_at ; status= to_status(game_object##status); }
+  let to_date date_string =
+    Js.Date.fromString date_string
+  in
+  { name= game_object##name ; created_at= (to_date game_object##created_at) ; status= (to_status game_object##status); }
 
 let lobby_payload_to_game_list payload =
     let game_objects = payload##games |> Js.Null_undefined.to_opt in
@@ -47,6 +53,13 @@ let lobby_payload_to_game_list payload =
 
 let init () =
   let user_name = currentUser in
+  let empty_model = {
+    new_game_name = "";
+    games = None;
+    channel = None;
+    create_error = None;
+  }
+  in
   match user_name with
     | Some name ->
       let opts = [%bs.obj { params = { player_name = name}}] in
@@ -74,19 +87,10 @@ let init () =
         ) channel |> ignore;
 
       ) in
-      let model = {
-        new_game_name = "";
-        games = None;
-        channel = Some channel
-      } in
+      let model = {empty_model with channel = Some channel } in
       (model, Cmd.batch [eventCommands; joinCommands])
     | None ->
-      let model = {
-        new_game_name = "";
-        games = None;
-        channel = None
-      } in
-      (model, Cmd.none)
+      (empty_model, Cmd.none)
 
 let update model = function
   | UpdateNewGameName name -> 
@@ -94,9 +98,10 @@ let update model = function
   | CreateNewGameSucceeded ->
     print_endline "NEW GAME CREATED";
     (model, Cmd.none)
-  | CreateNewGameFailed ->
-    print_endline "NEW GAME CREATED Failed";
-    (model, Cmd.none)
+  | CreateNewGameFailed error ->
+    ({model with create_error = Some error}, Cmd.none)
+  | RemoveErrorFromCreateNewGame ->
+    ({model with create_error = None}, Cmd.none)
   | NewGameCreated game ->
     begin match model.games with
       | None -> 
@@ -115,8 +120,11 @@ let update model = function
             |> Phoenix.Channel.receive (`ok (fun _ -> 
               !callbacks.enqueue createNewGameSucceeded
             ))
-            |> Phoenix.Channel.receive (`error (fun _ ->
-              !callbacks.enqueue createNewGameFailed
+            |> Phoenix.Channel.receive (`error (fun (p: game_created_error_payload) ->
+              let error_opt = p##error |> Js.Null_undefined.to_opt in
+              match error_opt with
+                | Some error  -> !callbacks.enqueue (createNewGameFailed error)
+                | None -> !callbacks.enqueue (createNewGameFailed "Unknown error")
             ))
             |> ignore;
           ) in
@@ -147,14 +155,16 @@ let view_games games_option =
           div [class' "ui basic green button"] [ text "Join game"] ;
           div [class' "ui basic orange button"] [ text "Specate"] ;
         ]
-      | Unknown ->
-        span [] []
+      | Unknown -> noNode
+  in
+  let format_date date =
+    Js.Date.toDateString date
   in
   let view_game game =
     div [class' "card"] [
       div [class' "content"] [
         div [class' "header"] [ text game.name ];
-        div [class' "meta float right"] [ text ("Created: " ^ game.created_at)] ;
+        div [class' "meta float right"] [ text ("Created: " ^ (format_date game.created_at))] ;
       ] ;
       div [class' "content"] (view_status game.status) ;
       view_actions game.status
@@ -170,6 +180,36 @@ let view_games games_option =
     | Some games ->
         div [class' "ui cards"] (List.map view_game games)
 
+
+let view_create_form model =
+  let open Html in
+  let view_creation_error = function
+    | Some error ->
+        div [class' "ui visible error message"] [
+          i [class' "close icon"; onClick RemoveErrorFromCreateNewGame] [];
+          div [class' "header"] [text "There was an error creating the game"] ;
+          p [] [text error]
+        ];
+    | None -> noNode
+  in
+  let input_class = function
+    | Some error -> "field error"
+    | None -> "field"
+  in
+  div [id "new-game"; class' "ui form"] [
+    div [class' (input_class model.create_error)] [
+      label [] [text "Game name"] ;
+      input' [
+        type' "text"; 
+        name "game-name"; 
+        placeholder "Gamen name";
+        onInput updateNewGameName;
+      ] [];
+    ];
+    view_creation_error model.create_error;
+    button [class' "ui button"; onClick createNewGame] [ text "Create new game"]
+  ]
+
 let view model =
   match model.channel with
     | None -> viewInvald
@@ -179,18 +219,7 @@ let view model =
         []
         [ h1 [class' "ui header"] [ text "Welcome in the lobby"] ;
           h2 [class' "ui header"] [ text "Create a new Game"] ;
-          div [id "new-game"; class' "ui form"] [
-            div [class' "field"] [
-              label [] [text "Game name"] ;
-              input' [
-                type' "text"; 
-                name "game-name"; 
-                placeholder "Gamen name";
-                onInput updateNewGameName;
-              ] []
-            ] ;
-            button [class' "ui button"; onClick createNewGame] [ text "Create new game"]
-          ] ;
+          view_create_form model;
           h2 [class' "ui header"] [ text "Open games"] ;
           view_games model.games
         ]
