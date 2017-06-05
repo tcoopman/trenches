@@ -2,14 +2,6 @@
 
 Object.defineProperty(exports, '__esModule', { value: true });
 
-function __(tag, block) {
-  block.tag = tag;
-  return block;
-}
-
-
-/* No side effect */
-
 var failure = /* tuple */[
   "Failure",
   -2
@@ -1682,6 +1674,14 @@ function polyfills() {
 
 /* No side effect */
 
+function __(tag, block) {
+  block.tag = tag;
+  return block;
+}
+
+
+/* No side effect */
+
 function caml_equal(_a, _b) {
   while(true) {
     var b = _b;
@@ -3337,7 +3337,8 @@ var noNode$1 = noNode;
 function init() {
   var empty_model = /* record */[
     /* game_name : None */0,
-    /* join_error : None */0
+    /* join_error : None */0,
+    /* joined : false */0
   ];
   var match = currentUser;
   var match$1 = game_name;
@@ -3361,14 +3362,13 @@ function init() {
     var channel = _2(Socket[/* channel */2], "game:" + match$1, socket);
     var cmds = call(function (callbacks) {
           _1(Channel[/* join */0], channel).receive("ok", function () {
-                  console.log("joined game");
-                  return /* () */0;
+                  return _1(callbacks[0][/* enqueue */0], /* GameJoined */0);
                 }).receive("error", function (p$$1) {
                 if (is_nil_undef(p$$1)) {
                   debugger;
-                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */__(1, ["Unknown error"]));
+                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */["Unknown error"]);
                 } else {
-                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */__(1, [p$$1]));
+                  return _1(callbacks[0][/* enqueue */0], /* GameJoinedFailed */[p$$1]);
                 }
               });
           return /* () */0;
@@ -3376,7 +3376,8 @@ function init() {
     return /* tuple */[
             /* record */[
               /* game_name : Some */[match$1],
-              /* join_error : None */0
+              /* join_error : None */0,
+              /* joined : false */0
             ],
             cmds
           ];
@@ -3384,17 +3385,22 @@ function init() {
 }
 
 function update(model, param) {
-  if (param.tag) {
+  if (param) {
     return /* tuple */[
             /* record */[
               /* game_name */model[/* game_name */0],
-              /* join_error : Some */[param[0]]
+              /* join_error : Some */[param[0]],
+              /* joined */model[/* joined */2]
             ],
             none
           ];
   } else {
     return /* tuple */[
-            model,
+            /* record */[
+              /* game_name */model[/* game_name */0],
+              /* join_error */model[/* join_error */1],
+              /* joined : true */1
+            ],
             none
           ];
   }
