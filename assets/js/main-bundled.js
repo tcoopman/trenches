@@ -3385,18 +3385,20 @@ function gamesInitialized(param_0) {
   return /* GamesInitialized */__(2, [param_0]);
 }
 
+function game_object_to_game(game_object) {
+  return /* record */[
+          /* name */game_object.name,
+          /* created_at */game_object.created_at,
+          /* status */game_object.status
+        ];
+}
+
 function lobby_payload_to_game_list(payload) {
   var game_objects = payload.games;
   if (is_nil_undef(game_objects)) {
     return /* None */0;
   } else {
-    var games = map(function (game_object) {
-          return /* record */[
-                  /* name */game_object.name,
-                  /* created_at */game_object.created_at,
-                  /* status */game_object.status
-                ];
-        }, to_list(game_objects));
+    var games = map(game_object_to_game, to_list(game_objects));
     return /* Some */[games];
   }
 }
@@ -3437,12 +3439,12 @@ function init() {
         });
     var eventCommands = call(function (callbacks) {
           _3(Channel[/* on */1], "game_created", function (x) {
-                var optName = x.game_name;
-                if (is_nil_undef(optName)) {
+                var game_object_option = x.game;
+                if (is_nil_undef(game_object_option)) {
                   console.log("Illegal value received???");
                   return /* () */0;
                 } else {
-                  return _1(callbacks[0][/* enqueue */0], /* NewGameCreated */__(1, [optName]));
+                  return _1(callbacks[0][/* enqueue */0], /* NewGameCreated */__(1, [game_object_to_game(game_object_option)]));
                 }
               }, channel);
           return /* () */0;
@@ -3522,7 +3524,14 @@ function update(model, param) {
                 ];
       case 1 : 
           return /* tuple */[
-                  model,
+                  /* record */[
+                    /* new_game_name */model[/* new_game_name */0],
+                    /* games : :: */[
+                      param[0],
+                      model[/* games */1]
+                    ],
+                    /* channel */model[/* channel */2]
+                  ],
                   none
                 ];
       case 2 : 
@@ -3666,6 +3675,7 @@ exports.createNewGameSucceeded = createNewGameSucceeded;
 exports.newGameCreated = newGameCreated;
 exports.gamesInitialized = gamesInitialized;
 exports.createNewGameFailed = createNewGameFailed;
+exports.game_object_to_game = game_object_to_game;
 exports.lobby_payload_to_game_list = lobby_payload_to_game_list;
 exports.init = init;
 exports.update = update;

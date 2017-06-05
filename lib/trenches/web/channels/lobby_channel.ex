@@ -13,8 +13,8 @@ defmodule Trenches.Web.LobbyChannel do
 
   def handle_in("create_game", %{"game_name" => game_name}, socket) do
     reply = case Lobby.create_game(game_name) do
-      :ok ->
-        broadcast! socket, "game_created", %{game_name: game_name}
+      {:ok, game} ->
+        broadcast! socket, "game_created", %{game: game}
         {:reply, :ok, socket}
       {:error, reason} -> 
         {:reply, {:error, %{error: reason}}, socket}

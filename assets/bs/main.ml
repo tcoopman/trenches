@@ -10,7 +10,7 @@ type msg =
   | UpdateNewGameName of string
   | CreateNewGame
   | CreateNewGameSucceeded 
-  | NewGameCreated of string
+  | NewGameCreated of game
   | GamesInitialized of game list
   | CreateNewGameFailed
   [@@bs.deriving {accessors}]
@@ -23,8 +23,12 @@ type model = {
 
 external currentUser : string option = "" [@@bs.val] [@@bs.return null_undefined_to_opt]
 
-type game_created_payload = < game_name : string Js.null_undefined > Js.t
-type lobby_joined_payload = < games : < name : string ; created_at : string; status: string > Js.t array Js.null_undefined > Js.t
+type game_object = < name : string ; created_at : string ; status : string > Js.t
+type game_created_payload = < game : game_object Js.null_undefined > Js.t
+type lobby_joined_payload = < games : game_object array Js.null_undefined > Js.t
+
+let game_object_to_game game_object =
+  { name= game_object##name ; created_at= game_object##created_at ; status= game_object##status; }
 
 let lobby_payload_to_game_list payload =
     let game_objects = payload##games |> Js.Null_undefined.to_opt in
@@ -32,8 +36,7 @@ let lobby_payload_to_game_list payload =
       | Some objects -> 
         let games = objects
         |> Array.to_list
-        |> List.map (fun game_object -> { name= game_object##name ; created_at= game_object##created_at ; status= game_object##status; })
-        in
+        |> List.map game_object_to_game in
         Some games
       | None ->
         None
@@ -60,9 +63,9 @@ let init () =
       ) in
       let eventCommands = Cmd.call (fun callbacks ->
         Phoenix.Channel.on "game_created" (fun (x: game_created_payload) -> 
-          let optName = x##game_name |> Js.Null_undefined.to_opt in 
-          match optName with
-            | Some name  -> !callbacks.enqueue (newGameCreated name)
+          let game_object_option = x##game |> Js.Null_undefined.to_opt in 
+          match game_object_option with
+            | Some game_object  -> !callbacks.enqueue (newGameCreated (game_object_to_game game_object))
             | None -> print_endline "Illegal value received???"
         ) channel |> ignore;
 
@@ -90,9 +93,8 @@ let update model = function
   | CreateNewGameFailed ->
     print_endline "NEW GAME CREATED Failed";
     (model, Cmd.none)
-  | NewGameCreated name ->
-    (*({model with games = (name :: model.games)}, Cmd.none)*)
-    (model, Cmd.none)
+  | NewGameCreated game ->
+    ({model with games = (game :: model.games)}, Cmd.none)
   | GamesInitialized games ->
     ({model with games = games}, Cmd.none)
   | CreateNewGame ->
