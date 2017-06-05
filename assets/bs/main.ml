@@ -17,8 +17,8 @@ type model = {
 
 external currentUser : string option = "" [@@bs.val] [@@bs.return null_undefined_to_opt]
 
-type game_created_payload = < game_name : string Js.null_undefined [@bs.get] > Js.t
-type lobby_joined_payload = < games : string array Js.null_undefined [@bs.get] > Js.t
+type game_created_payload = < game_name : string Js.null_undefined > Js.t
+type lobby_joined_payload = < games : string array Js.null_undefined > Js.t
 
 let init () =
   let user_name = currentUser in
