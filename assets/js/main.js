@@ -1809,6 +1809,10 @@ function isCamlExceptionOrOpenVariant(e) {
 
 var Exit = create$1("Pervasives.Exit");
 
+function string_of_int(param) {
+  return "" + param;
+}
+
 
 /* No side effect */
 
@@ -3511,7 +3515,9 @@ function game_object_to_game(game_object) {
   return /* record */[
           /* name */game_object.name,
           /* created_at */new Date(game_object.created_at),
-          /* status */to_status(game_object.status)
+          /* created_by */game_object.created_by,
+          /* status */to_status(game_object.status),
+          /* nb_players */game_object.nb_players
         ];
 }
 
@@ -3718,41 +3724,59 @@ var viewInvald = div$2(/* None */0, /* None */0, /* [] */0, /* :: */[
     ]);
 
 function view_games(games_option) {
-  var view_status = function (status) {
+  var view_status = function (nb_players, status) {
     switch (status) {
       case 0 : 
-          return /* :: */[
-                  i(/* None */0, /* None */0, /* :: */[
-                        class$prime("flag icon green"),
-                        /* [] */0
-                      ], /* [] */0),
-                  /* :: */[
-                    text$1("Waiting for players"),
-                    /* [] */0
-                  ]
-                ];
+          return div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("content"),
+                      /* [] */0
+                    ], /* :: */[
+                      i(/* None */0, /* None */0, /* :: */[
+                            class$prime("flag icon green"),
+                            /* [] */0
+                          ], /* [] */0),
+                      /* :: */[
+                        text$1("Waiting for players"),
+                        /* :: */[
+                          div$2(/* None */0, /* None */0, /* :: */[
+                                class$prime("discripton"),
+                                /* [] */0
+                              ], /* :: */[
+                                text$1(string_of_int(nb_players) + " player already joined!"),
+                                /* [] */0
+                              ]),
+                          /* [] */0
+                        ]
+                      ]
+                    ]);
       case 1 : 
-          return /* :: */[
-                  i(/* None */0, /* None */0, /* :: */[
-                        class$prime("hourglass start icon red"),
+          return div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("content"),
+                      /* [] */0
+                    ], /* :: */[
+                      i(/* None */0, /* None */0, /* :: */[
+                            class$prime("hourglass start icon red"),
+                            /* [] */0
+                          ], /* [] */0),
+                      /* :: */[
+                        text$1("Starting..."),
                         /* [] */0
-                      ], /* [] */0),
-                  /* :: */[
-                    text$1("Starting..."),
-                    /* [] */0
-                  ]
-                ];
+                      ]
+                    ]);
       case 2 : 
-          return /* :: */[
-                  i(/* None */0, /* None */0, /* :: */[
-                        class$prime("help icon red"),
+          return div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("content"),
+                      /* [] */0
+                    ], /* :: */[
+                      i(/* None */0, /* None */0, /* :: */[
+                            class$prime("help icon red"),
+                            /* [] */0
+                          ], /* [] */0),
+                      /* :: */[
+                        text$1("Unknown"),
                         /* [] */0
-                      ], /* [] */0),
-                  /* :: */[
-                    text$1("Unknown"),
-                    /* [] */0
-                  ]
-                ];
+                      ]
+                    ]);
       
     }
   };
@@ -3805,7 +3829,7 @@ function view_games(games_option) {
   };
   var view_game = function (game) {
     return div$2(/* None */0, /* None */0, /* :: */[
-                class$prime("card"),
+                class$prime("card raised"),
                 /* [] */0
               ], /* :: */[
                 div$2(/* None */0, /* None */0, /* :: */[
@@ -3824,19 +3848,25 @@ function view_games(games_option) {
                               class$prime("meta float right"),
                               /* [] */0
                             ], /* :: */[
-                              text$1("Created: " + game[/* created_at */1].toDateString()),
+                              text$1("Created at: " + game[/* created_at */1].toDateString()),
                               /* [] */0
                             ]),
-                        /* [] */0
+                        /* :: */[
+                          div$2(/* None */0, /* None */0, /* :: */[
+                                class$prime("meta float right"),
+                                /* [] */0
+                              ], /* :: */[
+                                text$1("Created by: " + game[/* created_by */2]),
+                                /* [] */0
+                              ]),
+                          /* [] */0
+                        ]
                       ]
                     ]),
                 /* :: */[
-                  div$2(/* None */0, /* None */0, /* :: */[
-                        class$prime("content"),
-                        /* [] */0
-                      ], view_status(game[/* status */2])),
+                  view_status(game[/* nb_players */4], game[/* status */3]),
                   /* :: */[
-                    view_actions(game[/* name */0], game[/* status */2]),
+                    view_actions(game[/* name */0], game[/* status */3]),
                     /* [] */0
                   ]
                 ]

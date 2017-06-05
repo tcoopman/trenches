@@ -10,7 +10,7 @@ defmodule Trenches.GameLoopTest do
     player1 = Player.new(1, 1)
     player2 = Player.new(2, 2)
 
-    game = Game.new("test")
+    game = Game.new("test", player1)
     {:ok, game} = Game.join(game, player1)
     {:ok, game} = Game.join(game, player2)
     [game: game]

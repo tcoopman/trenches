@@ -4,7 +4,9 @@ type game_status = WaitingForPlayers | CountdownToStart | Unknown
 type game = {
   name : string;
   created_at : Js.Date.t;
+  created_by : string;
   status : game_status;
+  nb_players: int;
 }
 
 type msg =
@@ -27,7 +29,7 @@ type model = {
 
 external currentUser : string option = "" [@@bs.val] [@@bs.return null_undefined_to_opt]
 
-type game_object = < name : string ; created_at : string ; status : string > Js.t
+type game_object = < name : string ; created_at : string ; status : string ; created_by : string ; nb_players : int> Js.t
 type game_created_payload = < game : game_object Js.null_undefined > Js.t
 type lobby_joined_payload = < games : game_object array Js.null_undefined > Js.t
 type game_created_error_payload = < error : string Js.null_undefined > Js.t
@@ -42,7 +44,12 @@ let game_object_to_game game_object =
   let to_date date_string =
     Js.Date.fromString date_string
   in
-  { name= game_object##name ; created_at= (to_date game_object##created_at) ; status= (to_status game_object##status); }
+  { name= game_object##name ; 
+    created_at= (to_date game_object##created_at) ; 
+    created_by = game_object##created_by ;
+    status= (to_status game_object##status); 
+    nb_players = game_object##nb_players;
+  }
 
 let lobby_payload_to_game_list payload =
     let game_objects = payload##games |> Js.Null_undefined.to_opt in
@@ -151,14 +158,23 @@ let viewInvald =
 
 let view_games games_option =
   let open Html in
-  let view_status status =
+  let view_status nb_players status =
     match status with
       | WaitingForPlayers ->
-        [i [class' "flag icon green"] [] ; text "Waiting for players"]
+        div [class' "content"] [
+          i [class' "flag icon green"] [] ; 
+          text "Waiting for players";
+          div [class' "discripton"] [ text ((string_of_int nb_players) ^ " player already joined!")]
+        ]
       | CountdownToStart ->
-        [i [class' "hourglass start icon red"] []; text "Starting..."]
+        div [class' "content"] [
+          i [class' "hourglass start icon red"] []; 
+          text "Starting..."
+        ]
       | Unknown ->
-        [i [class' "help icon red"] [] ; text "Unknown"]
+        div [class' "content"] [
+          i [class' "help icon red"] [] ; text "Unknown"
+        ]
   in
   let view_actions name status = 
     match status with
@@ -177,12 +193,13 @@ let view_games games_option =
     Js.Date.toDateString date
   in
   let view_game game =
-    div [class' "card"] [
+    div [class' "card raised"] [
       div [class' "content"] [
         div [class' "header"] [ text game.name ];
-        div [class' "meta float right"] [ text ("Created: " ^ (format_date game.created_at))] ;
+        div [class' "meta float right"] [ text ("Created at: " ^ (format_date game.created_at))] ;
+        div [class' "meta float right"] [ text ("Created by: " ^ (game.created_by))] ;
       ] ;
-      div [class' "content"] (view_status game.status) ;
+      view_status game.nb_players game.status ;
       view_actions game.name game.status
     ]
   in

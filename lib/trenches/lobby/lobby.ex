@@ -10,8 +10,8 @@ defmodule Trenches.Lobby do
     Supervisor.start_link(children, strategy: :simple_one_for_one, name: __MODULE__)
   end
 
-  def create_game(name) do
-    game = Game.new(name)
+  def create_game(name, player) do
+    game = Game.new(name, player)
     case Supervisor.start_child(__MODULE__, [game]) do
       {:ok, _} -> {:ok, game}
       {:error, {:already_started, _}} -> {:error, :duplicate_name}

@@ -4,14 +4,16 @@ defmodule Trenches.LobbyTest do
   alias Trenches.Lobby
   alias Trenches.Game
   alias Trenches.GameServer
+  alias Trenches.Player
 
   test "A scenario" do
-    {:ok, %Game{name: "game 1"}} = Lobby.create_game("game 1")
-    {:error, :duplicate_name} = Lobby.create_game("game 1")
+    player = %Player{name: "player"}
+    {:ok, %Game{name: "game 1"}} = Lobby.create_game("game 1", player)
+    {:error, :duplicate_name} = Lobby.create_game("game 1", player)
 
     assert [%Game{name: "game 1"}] = Lobby.all_games()
 
-    {:ok, %Game{name: "game 2"}} = Lobby.create_game("game 2")
+    {:ok, %Game{name: "game 2"}} = Lobby.create_game("game 2", player)
 
     assert [%Game{name: "game 1"}, %Game{name: "game 2"}] = Lobby.all_games()
 

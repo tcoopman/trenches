@@ -12,8 +12,8 @@ defmodule Trenches.Game do
     countdown_clock: 5
   ]
 
-  def new(name) do
-    %Game{name: name, created_at: DateTime.utc_now}
+  def new(name, %Player{} = creator) do
+    %Game{name: name, created_at: DateTime.utc_now, created_by: creator}
   end
 
   def join(%Game{players: players} = game, %Player{} = player) do
