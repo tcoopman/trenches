@@ -2,7 +2,7 @@ defmodule Trenches.Game do
   alias __MODULE__
   alias Trenches.{Player, GameLoop}
 
-  defstruct [status: :not_started, players: %{}, subscriber: nil, name: nil, created_at: nil]
+  defstruct [status: :waiting_for_players, players: %{}, subscriber: nil, name: nil, created_at: nil]
 
   def new(name) do
     %Game{name: name, created_at: DateTime.utc_now}
@@ -17,6 +17,7 @@ defmodule Trenches.Game do
       true ->
         players = Map.put(players, player.id, player)
         game = %{game | players: players}
+        |> update_status
         {:ok, game}
     end
   end
@@ -34,4 +35,11 @@ defmodule Trenches.Game do
   end
 
   def open?(%Game{status: status}), do: status == :not_started
+
+  defp update_status(%Game{players: players} = game) do
+    case Enum.count(players) == 2 do
+      true -> %{game | status: :countdown_to_start}
+      false -> game
+    end
+  end
 end

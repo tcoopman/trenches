@@ -3499,10 +3499,13 @@ function updateNewGameName(param_0) {
 
 function game_object_to_game(game_object) {
   var to_status = function (status) {
-    if (status === "not_started") {
-      return /* NotStarted */0;
-    } else {
-      return /* Unknown */1;
+    switch (status) {
+      case "countdown_to_start" : 
+          return /* CountdownToStart */1;
+      case "waiting_for_players" : 
+          return /* WaitingForPlayers */0;
+      default:
+        return /* Unknown */2;
     }
   };
   return /* record */[
@@ -3716,59 +3719,88 @@ var viewInvald = div$2(/* None */0, /* None */0, /* [] */0, /* :: */[
 
 function view_games(games_option) {
   var view_status = function (status) {
-    if (status !== 0) {
-      return /* :: */[
-              i(/* None */0, /* None */0, /* :: */[
-                    class$prime("help icon red"),
+    switch (status) {
+      case 0 : 
+          return /* :: */[
+                  i(/* None */0, /* None */0, /* :: */[
+                        class$prime("flag icon green"),
+                        /* [] */0
+                      ], /* [] */0),
+                  /* :: */[
+                    text$1("Waiting for players"),
                     /* [] */0
-                  ], /* [] */0),
-              /* :: */[
-                text$1("Unknown"),
-                /* [] */0
-              ]
-            ];
-    } else {
-      return /* :: */[
-              i(/* None */0, /* None */0, /* :: */[
-                    class$prime("flag icon green"),
+                  ]
+                ];
+      case 1 : 
+          return /* :: */[
+                  i(/* None */0, /* None */0, /* :: */[
+                        class$prime("hourglass start icon red"),
+                        /* [] */0
+                      ], /* [] */0),
+                  /* :: */[
+                    text$1("Starting..."),
                     /* [] */0
-                  ], /* [] */0),
-              /* :: */[
-                text$1("Not started"),
-                /* [] */0
-              ]
-            ];
+                  ]
+                ];
+      case 2 : 
+          return /* :: */[
+                  i(/* None */0, /* None */0, /* :: */[
+                        class$prime("help icon red"),
+                        /* [] */0
+                      ], /* [] */0),
+                  /* :: */[
+                    text$1("Unknown"),
+                    /* [] */0
+                  ]
+                ];
+      
     }
   };
   var view_actions = function (name$$1, status) {
-    if (status !== 0) {
-      return noNode$1;
-    } else {
-      return div$2(/* None */0, /* None */0, /* :: */[
-                  class$prime("extra content"),
-                  /* [] */0
-                ], /* :: */[
-                  button(/* None */0, /* None */0, /* :: */[
-                        class$prime("ui basic green button"),
-                        /* :: */[
-                          onClick(/* JoinGame */__(4, [name$$1])),
-                          /* [] */0
-                        ]
-                      ], /* :: */[
-                        text$1("Join game"),
+    switch (status) {
+      case 0 : 
+          return div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("extra content"),
+                      /* [] */0
+                    ], /* :: */[
+                      button(/* None */0, /* None */0, /* :: */[
+                            class$prime("ui basic green button"),
+                            /* :: */[
+                              onClick(/* JoinGame */__(4, [name$$1])),
+                              /* [] */0
+                            ]
+                          ], /* :: */[
+                            text$1("Join game"),
+                            /* [] */0
+                          ]),
+                      /* :: */[
+                        button(/* None */0, /* None */0, /* :: */[
+                              class$prime("ui basic orange button"),
+                              /* [] */0
+                            ], /* :: */[
+                              text$1("Specate"),
+                              /* [] */0
+                            ]),
                         /* [] */0
-                      ]),
-                  /* :: */[
-                    button(/* None */0, /* None */0, /* :: */[
-                          class$prime("ui basic orange button"),
-                          /* [] */0
-                        ], /* :: */[
-                          text$1("Specate"),
-                          /* [] */0
-                        ]),
-                    /* [] */0
-                  ]
-                ]);
+                      ]
+                    ]);
+      case 1 : 
+          return div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("extra content"),
+                      /* [] */0
+                    ], /* :: */[
+                      button(/* None */0, /* None */0, /* :: */[
+                            class$prime("ui basic orange button"),
+                            /* [] */0
+                          ], /* :: */[
+                            text$1("Specate"),
+                            /* [] */0
+                          ]),
+                      /* [] */0
+                    ]);
+      case 2 : 
+          return noNode$1;
+      
     }
   };
   var view_game = function (game) {

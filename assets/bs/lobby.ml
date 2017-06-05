@@ -1,6 +1,6 @@
 open Tea
 
-type game_status = NotStarted | Unknown
+type game_status = WaitingForPlayers | CountdownToStart | Unknown
 type game = {
   name : string;
   created_at : Js.Date.t;
@@ -34,7 +34,10 @@ type game_created_error_payload = < error : string Js.null_undefined > Js.t
 
 let game_object_to_game game_object =
   let to_status status =
-    if status == "not_started" then NotStarted else Unknown
+    match status with
+      | "waiting_for_players" -> WaitingForPlayers
+      | "countdown_to_start" -> CountdownToStart
+      | _ -> Unknown
   in
   let to_date date_string =
     Js.Date.fromString date_string
@@ -150,16 +153,22 @@ let view_games games_option =
   let open Html in
   let view_status status =
     match status with
-      | NotStarted ->
-        [i [class' "flag icon green"] [] ; text "Not started"]
+      | WaitingForPlayers ->
+        [i [class' "flag icon green"] [] ; text "Waiting for players"]
+      | CountdownToStart ->
+        [i [class' "hourglass start icon red"] []; text "Starting..."]
       | Unknown ->
         [i [class' "help icon red"] [] ; text "Unknown"]
   in
   let view_actions name status = 
     match status with
-      | NotStarted ->
+      | WaitingForPlayers ->
         div [class' "extra content"] [
           button [class' "ui basic green button"; onClick (joinGame name)] [ text "Join game"] ;
+          button [class' "ui basic orange button"] [ text "Specate"] ;
+        ]
+      | CountdownToStart ->
+        div [class' "extra content"] [
           button [class' "ui basic orange button"] [ text "Specate"] ;
         ]
       | Unknown -> noNode
