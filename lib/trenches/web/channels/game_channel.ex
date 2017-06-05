@@ -6,11 +6,12 @@ defmodule Trenches.Web.GameChannel do
 
   def join("game:" <> game_name, %{}, socket) do
     player = socket.assigns[:player]
-    with {:ok, pid} = Lobby.get(game_name),
+    with {:ok, pid} = Lobby.get_id(game_name),
          :ok <- GameServer.join(pid, player),
          :ok <- GameServer.subscribe(pid, self())
     do
       socket = assign(socket, :game_name, game_name)
+      Trenches.Web.LobbyChannel.game_updated(game_name)
       {:ok, socket}
     else
       {:error, reason} -> {:error, reason}
@@ -20,7 +21,7 @@ defmodule Trenches.Web.GameChannel do
 
   def handle_in("start", _, socket) do
     game_name = socket.assigns[:game_name]
-    with {:ok, game_id} <- Lobby.get(game_name),
+    with {:ok, game_id} <- Lobby.get_id(game_name),
          :ok <- Game.start(game_id)
     do
       {:reply, :ok, socket}
@@ -32,7 +33,7 @@ defmodule Trenches.Web.GameChannel do
 
   def handle_in("new_unit", %{"type" => type, "id" => id}, socket) do
     game_name = socket.assigns[:game_name]
-    with {:ok, game_id} <- Lobby.get(game_name),
+    with {:ok, game_id} <- Lobby.get_id(game_name),
          :ok <- Game.new_unit(game_id, id, type)
     do
       {:reply, :ok, socket}

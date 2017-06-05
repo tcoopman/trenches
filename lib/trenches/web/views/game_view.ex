@@ -5,11 +5,11 @@ defmodule Trenches.Web.GameView do
 
   def render_games(games) do
     %{
-      games: Enum.map(games, &game_json/1)
+      games: Enum.map(games, &render_game/1)
     }
   end
 
-  defp game_json(%Game{name: name, status: status, created_at: created_at, created_by: created_by, players: players}) do
+  def render_game(%Game{name: name, status: status, created_at: created_at, created_by: created_by, players: players}) do
     %{
       name: name,
       created_at: DateTime.to_iso8601(created_at),

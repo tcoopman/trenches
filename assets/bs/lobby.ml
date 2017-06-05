@@ -14,6 +14,7 @@ type msg =
   | CreateNewGame
   | CreateNewGameSucceeded 
   | NewGameCreated of game
+  | GameUpdated of game
   | GamesInitialized of game list
   | CreateNewGameFailed of string
   | RemoveErrorFromCreateNewGame
@@ -96,7 +97,12 @@ let init () =
             | Some game_object  -> !callbacks.enqueue (newGameCreated (game_object_to_game game_object))
             | None -> print_endline "Illegal value received???"
         ) channel |> ignore;
-
+        Phoenix.Channel.on "game_updated" (fun (x: game_created_payload) -> 
+          let game_object_option = x##game |> Js.Null_undefined.to_opt in 
+          match game_object_option with
+            | Some game_object  -> !callbacks.enqueue (gameUpdated (game_object_to_game game_object))
+            | None -> print_endline "Illegal value received???"
+        ) channel |> ignore;
       ) in
       let model = {empty_model with channel = Some channel } in
       (model, Cmd.batch [eventCommands; joinCommands])
@@ -122,6 +128,16 @@ let update model = function
         (model, Cmd.none)
       | Some games -> 
         ({model with games = Some (game :: games)}, Cmd.none)
+    end
+  | GameUpdated updated_game ->
+    begin match model.games with
+      | None -> 
+        (model, Cmd.none)
+      | Some games -> 
+        let new_games = List.map (fun game -> 
+          if game.name == updated_game.name then updated_game else game
+        ) games in
+        ({model with games = Some new_games}, Cmd.none)
     end
   | GamesInitialized games ->
     ({model with games = Some games}, Cmd.none)

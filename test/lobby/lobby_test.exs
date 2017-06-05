@@ -17,11 +17,11 @@ defmodule Trenches.LobbyTest do
 
     assert [%Game{name: "game 1"}, %Game{name: "game 2"}] = Lobby.all_games()
 
-    assert {:ok, pid} = Lobby.get("game 1")
+    assert {:ok, pid} = Lobby.get_id("game 1")
     assert GameServer.game(pid).name == "game 1"
   end
 
   test "get when there is no game" do
-    assert {:error, _} = Lobby.get("unknown")
+    assert {:error, _} = Lobby.get_id("unknown")
   end
 end

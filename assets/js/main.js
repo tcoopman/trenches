@@ -3555,7 +3555,7 @@ function init$3() {
           _1(Channel[/* join */0], channel).receive("ok", function (x) {
                   var match = lobby_payload_to_game_list(x);
                   if (match) {
-                    return _1(callbacks[0][/* enqueue */0], /* GamesInitialized */__(2, [match[0]]));
+                    return _1(callbacks[0][/* enqueue */0], /* GamesInitialized */__(3, [match[0]]));
                   } else {
                     console.log("No games received on join???");
                     return /* () */0;
@@ -3574,6 +3574,15 @@ function init$3() {
                   return /* () */0;
                 } else {
                   return _1(callbacks[0][/* enqueue */0], /* NewGameCreated */__(1, [game_object_to_game(game_object_option)]));
+                }
+              }, channel);
+          _3(Channel[/* on */1], "game_updated", function (x) {
+                var game_object_option = x.game;
+                if (is_nil_undef(game_object_option)) {
+                  console.log("Illegal value received???");
+                  return /* () */0;
+                } else {
+                  return _1(callbacks[0][/* enqueue */0], /* GameUpdated */__(2, [game_object_to_game(game_object_option)]));
                 }
               }, channel);
           return /* () */0;
@@ -3614,9 +3623,9 @@ function update$1(model, param) {
                         }).receive("error", function (p$$1) {
                         var error_opt = p$$1.error;
                         if (is_nil_undef(error_opt)) {
-                          return _1(callbacks[0][/* enqueue */0], /* CreateNewGameFailed */__(3, ["Unknown error"]));
+                          return _1(callbacks[0][/* enqueue */0], /* CreateNewGameFailed */__(4, ["Unknown error"]));
                         } else {
-                          return _1(callbacks[0][/* enqueue */0], /* CreateNewGameFailed */__(3, [error_opt]));
+                          return _1(callbacks[0][/* enqueue */0], /* CreateNewGameFailed */__(4, [error_opt]));
                         }
                       });
                   return /* () */0;
@@ -3684,6 +3693,33 @@ function update$1(model, param) {
                   ];
           }
       case 2 : 
+          var updated_game = param[0];
+          var match$2 = model[/* games */2];
+          if (match$2) {
+            var new_games = map$1(function (game) {
+                  if (game[/* name */0] === updated_game[/* name */0]) {
+                    return updated_game;
+                  } else {
+                    return game;
+                  }
+                }, match$2[0]);
+            return /* tuple */[
+                    /* record */[
+                      /* new_game_name */model[/* new_game_name */0],
+                      /* create_error */model[/* create_error */1],
+                      /* games : Some */[new_games],
+                      /* channel */model[/* channel */3]
+                    ],
+                    none
+                  ];
+          } else {
+            return /* tuple */[
+                    model,
+                    none
+                  ];
+          }
+          break;
+      case 3 : 
           return /* tuple */[
                   /* record */[
                     /* new_game_name */model[/* new_game_name */0],
@@ -3693,7 +3729,7 @@ function update$1(model, param) {
                   ],
                   none
                 ];
-      case 3 : 
+      case 4 : 
           return /* tuple */[
                   /* record */[
                     /* new_game_name */model[/* new_game_name */0],
@@ -3703,7 +3739,7 @@ function update$1(model, param) {
                   ],
                   none
                 ];
-      case 4 : 
+      case 5 : 
           window.location = "/game/" + param[0];
           return /* tuple */[
                   model,
@@ -3790,7 +3826,7 @@ function view_games(games_option) {
                       button(/* None */0, /* None */0, /* :: */[
                             class$prime("ui basic green button"),
                             /* :: */[
-                              onClick(/* JoinGame */__(4, [name$$1])),
+                              onClick(/* JoinGame */__(5, [name$$1])),
                               /* [] */0
                             ]
                           ], /* :: */[
