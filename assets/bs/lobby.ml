@@ -1,6 +1,6 @@
 open Tea
 
-type game_status = WaitingForPlayers | CountdownToStart | Unknown
+type game_status = WaitingForPlayers | CountdownToStart | InProgress | Unknown
 type game = {
   name : string;
   created_at : Js.Date.t;
@@ -40,6 +40,7 @@ let game_object_to_game game_object =
     match status with
       | "waiting_for_players" -> WaitingForPlayers
       | "countdown_to_start" -> CountdownToStart
+      | "in_progress" -> InProgress
       | _ -> Unknown
   in
   let to_date date_string =
@@ -165,8 +166,7 @@ let update model = function
         | None -> 
           (model, Cmd.none)
 
-let subscriptions _model =
-  Sub.none
+let subscriptions _model = Sub.none
 
 let viewInvald =
   let open Html in
@@ -187,6 +187,11 @@ let view_games games_option =
           i [class' "hourglass start icon red"] []; 
           text "Starting..."
         ]
+      | InProgress ->
+        div [class' "content"] [
+          i [class' "hourglass half icon red"] []; 
+          text "Game in progress"
+        ]
       | Unknown ->
         div [class' "content"] [
           i [class' "help icon red"] [] ; text "Unknown"
@@ -200,6 +205,10 @@ let view_games games_option =
           button [class' "ui basic orange button"] [ text "Specate"] ;
         ]
       | CountdownToStart ->
+        div [class' "extra content"] [
+          button [class' "ui basic orange button"] [ text "Specate"] ;
+        ]
+      | InProgress ->
         div [class' "extra content"] [
           button [class' "ui basic orange button"] [ text "Specate"] ;
         ]

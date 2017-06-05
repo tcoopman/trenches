@@ -3506,10 +3506,12 @@ function game_object_to_game(game_object) {
     switch (status) {
       case "countdown_to_start" : 
           return /* CountdownToStart */1;
+      case "in_progress" : 
+          return /* InProgress */2;
       case "waiting_for_players" : 
           return /* WaitingForPlayers */0;
       default:
-        return /* Unknown */2;
+        return /* Unknown */3;
     }
   };
   return /* record */[
@@ -3805,6 +3807,20 @@ function view_games(games_option) {
                       /* [] */0
                     ], /* :: */[
                       i(/* None */0, /* None */0, /* :: */[
+                            class$prime("hourglass half icon red"),
+                            /* [] */0
+                          ], /* [] */0),
+                      /* :: */[
+                        text$1("Game in progress"),
+                        /* [] */0
+                      ]
+                    ]);
+      case 3 : 
+          return div$2(/* None */0, /* None */0, /* :: */[
+                      class$prime("content"),
+                      /* [] */0
+                    ], /* :: */[
+                      i(/* None */0, /* None */0, /* :: */[
                             class$prime("help icon red"),
                             /* [] */0
                           ], /* [] */0),
@@ -3845,6 +3861,7 @@ function view_games(games_option) {
                       ]
                     ]);
       case 1 : 
+      case 2 : 
           return div$2(/* None */0, /* None */0, /* :: */[
                       class$prime("extra content"),
                       /* [] */0
@@ -3858,7 +3875,7 @@ function view_games(games_option) {
                           ]),
                       /* [] */0
                     ]);
-      case 2 : 
+      case 3 : 
           return noNode$1;
       
     }
