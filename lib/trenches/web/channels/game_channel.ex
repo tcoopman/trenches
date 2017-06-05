@@ -1,14 +1,13 @@
 defmodule Trenches.Web.GameChannel do
   use Phoenix.Channel
 
-  alias Trenches.Game
+  alias Trenches.GameServer
   alias Trenches.Lobby
-  alias Trenches.PlayerRepo
 
   def join("game:" <> game_name, %{}, socket) do
     player = socket.assigns[:player]
-    with {:ok, game_id} <- Lobby.get(game_name),
-         {:ok, _game} <- Game.join(game_id, player)
+    with {:ok, pid} = Lobby.get(game_name),
+         :ok <- GameServer.join(pid, player)
     do
       socket = assign(socket, :game_name, game_name)
       {:ok, socket}

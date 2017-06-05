@@ -2,6 +2,7 @@ defmodule Trenches.GameServer do
   use GenServer
 
   alias Trenches.Game
+  alias Trenches.Player
   
   def start_link(%Game{} = game) do
     GenServer.start_link(
@@ -11,11 +12,21 @@ defmodule Trenches.GameServer do
     )
   end
 
-  def game(name) do
-    GenServer.call(name, :game)
-  end
+  # Client
+
+  def game(name), do: GenServer.call(name, :game)
+  def join(name, player), do: GenServer.call(name, {:join, player})
+
+  # Server
 
   def handle_call(:game, _from, %{game: game} = state), do: {:reply, game, state}
+  
+  def handle_call({:join, %Player{} = player}, _from, %{game: game} = state) do
+    case Game.join(game, player) do
+      {:ok, game} -> {:reply, :ok, %{state | game: game}}
+      {:error, reason} -> {:reply, {:error, reason}, state}
+    end
+  end
 
   def handle_info(:tick, %{game: game} = state) do
     state = %{state | game: Game.tick(game)}
