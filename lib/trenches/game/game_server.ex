@@ -16,6 +16,7 @@ defmodule Trenches.GameServer do
 
   def game(name), do: GenServer.call(name, :game)
   def join(name, player), do: GenServer.call(name, {:join, player})
+  def subscribe(name, subscriber), do: GenServer.call(name, {:subscribe, subscriber})
 
   # Server
 
@@ -26,6 +27,14 @@ defmodule Trenches.GameServer do
       {:ok, game} -> {:reply, :ok, %{state | game: game}}
       {:error, reason} -> {:reply, {:error, reason}, state}
     end
+  end
+
+  def handle_call({:subscribe, new_subscriber}, _from, %{subscriber: subscriber} = state) do
+    IO.inspect "SUBSCRIBING"
+    IO.inspect new_subscriber
+
+    schedule_tick()
+    {:reply, :ok, %{state | subscriber: new_subscriber}}
   end
 
   def handle_info(:tick, %{game: game} = state) do

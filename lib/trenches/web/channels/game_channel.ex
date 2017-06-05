@@ -7,7 +7,8 @@ defmodule Trenches.Web.GameChannel do
   def join("game:" <> game_name, %{}, socket) do
     player = socket.assigns[:player]
     with {:ok, pid} = Lobby.get(game_name),
-         :ok <- GameServer.join(pid, player)
+         :ok <- GameServer.join(pid, player),
+         :ok <- GameServer.subscribe(pid, self())
     do
       socket = assign(socket, :game_name, game_name)
       {:ok, socket}

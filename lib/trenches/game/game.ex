@@ -2,7 +2,15 @@ defmodule Trenches.Game do
   alias __MODULE__
   alias Trenches.{Player, GameLoop}
 
-  defstruct [status: :waiting_for_players, players: %{}, subscriber: nil, name: nil, created_at: nil]
+  defstruct [
+    status: :waiting_for_players,
+    players: %{},
+    subscriber: nil,
+    name: nil,
+    created_at: nil,
+    created_by: nil,
+    countdown_clock: 5
+  ]
 
   def new(name) do
     %Game{name: name, created_at: DateTime.utc_now}
@@ -31,7 +39,18 @@ defmodule Trenches.Game do
   end
 
   def tick(%Game{} = game) do
-    GameLoop.tick(game)
+    case game.status do
+      :waiting_for_players -> game
+      :countdown_to_start -> 
+        countdown = game.countdown_clock - 1
+        if countdown = 0 do
+          %{game | countdown_clock: countdown, status: :in_progress}
+        else
+          %{game | countdown_clock: countdown}
+        end
+      :in_progress ->
+        GameLoop.tick(game)
+    end
   end
 
   def open?(%Game{status: status}), do: status == :not_started

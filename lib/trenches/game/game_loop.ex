@@ -54,15 +54,18 @@ defmodule Trenches.GameLoop do
       |> Enum.reverse
     end
 
-    units1 = sorted_units.(1)
-    units2 = sorted_units.(2)
+    keys = Map.keys players
+    id1 = Enum.at(keys, 0)
+    id2 = Enum.at(keys, 1)
+    units1 = sorted_units.(id1)
+    units2 = sorted_units.(id2)
 
     {new_units1, new_units2} = collide(units1, units2)
 
-    players = Map.update!(players, 1, fn player -> 
+    players = Map.update!(players, id1, fn player -> 
       %{player | units: new_units1}
     end)
-    players = Map.update!(players, 2, fn player -> 
+    players = Map.update!(players, id2, fn player -> 
       %{player | units: new_units2}
     end)
 
