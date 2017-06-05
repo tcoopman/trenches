@@ -6,8 +6,7 @@ defmodule Trenches.Web.LobbyController do
   plug :authenticate when action in [:index]
 
   def index(conn, _params) do
-    games = Lobby.all_open_games()
-    render conn, "index.html", %{games: games}
+    render conn, "index.html", %{}
   end
 
   defp authenticate(conn, _opts) do

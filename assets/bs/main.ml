@@ -1,24 +1,42 @@
 open Tea
 
+type game = {
+  name : string;
+  created_at : string;
+  status : string;
+}
+
 type msg =
   | UpdateNewGameName of string
   | CreateNewGame
   | CreateNewGameSucceeded 
   | NewGameCreated of string
-  | GamesInitialized of string list
+  | GamesInitialized of game list
   | CreateNewGameFailed
   [@@bs.deriving {accessors}]
 
 type model = {
   new_game_name : string;
-  games: string list;
+  games: game list;
   channel: Phoenix.Channel.t option;
 }
 
 external currentUser : string option = "" [@@bs.val] [@@bs.return null_undefined_to_opt]
 
 type game_created_payload = < game_name : string Js.null_undefined > Js.t
-type lobby_joined_payload = < games : string array Js.null_undefined > Js.t
+type lobby_joined_payload = < games : < name : string ; created_at : string; status: string > Js.t array Js.null_undefined > Js.t
+
+let lobby_payload_to_game_list payload =
+    let game_objects = payload##games |> Js.Null_undefined.to_opt in
+    match game_objects with
+      | Some objects -> 
+        let games = objects
+        |> Array.to_list
+        |> List.map (fun game_object -> { name= game_object##name ; created_at= game_object##created_at ; status= game_object##status; })
+        in
+        Some games
+      | None ->
+        None
 
 let init () =
   let user_name = currentUser in
@@ -31,10 +49,9 @@ let init () =
       let joinCommands = Cmd.call (fun callbacks -> 
         Phoenix.Channel.join "lobby" channel 
         |> Phoenix.Channel.receive (`ok (fun (x: lobby_joined_payload) -> 
-          let games = x##games |> Js.Null_undefined.to_opt in
-          match games with
-            | Some gs -> 
-              !callbacks.enqueue (gamesInitialized (Array.to_list gs))
+          match lobby_payload_to_game_list x with
+            | Some games ->
+              !callbacks.enqueue (gamesInitialized games)
             | None ->
               print_endline "No games received on join???"
         ))
@@ -74,7 +91,8 @@ let update model = function
     print_endline "NEW GAME CREATED Failed";
     (model, Cmd.none)
   | NewGameCreated name ->
-    ({model with games = (name :: model.games)}, Cmd.none)
+    (*({model with games = (name :: model.games)}, Cmd.none)*)
+    (model, Cmd.none)
   | GamesInitialized games ->
     ({model with games = games}, Cmd.none)
   | CreateNewGame ->
@@ -125,7 +143,7 @@ let view model =
           ] ;
           h2 [class' "ui header"] [ text "Open games"] ;
           ul [] (List.map (fun game -> 
-            li [] [ text game]
+            li [] [ text game.name]
           ) model.games)
         ]
 

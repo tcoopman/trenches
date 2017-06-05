@@ -11,17 +11,11 @@ defmodule Trenches.GameServer do
     )
   end
 
-  def open?(name) do
-    GenServer.call(name, :open?)
+  def game(name) do
+    GenServer.call(name, :game)
   end
 
-  def name(name) do
-    GenServer.call(name, :name)
-  end
-
-  def handle_call(:open?, _from, %{game: game} = state), do: {:reply, Game.open?(game), state}
-
-  def handle_call(:name, _from, %{game: game} = state), do: {:reply, game.name, state}
+  def handle_call(:game, _from, %{game: game} = state), do: {:reply, game, state}
 
   def handle_info(:tick, %{game: game} = state) do
     state = %{state | game: Game.tick(game)}

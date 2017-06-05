@@ -3385,6 +3385,22 @@ function gamesInitialized(param_0) {
   return /* GamesInitialized */__(2, [param_0]);
 }
 
+function lobby_payload_to_game_list(payload) {
+  var game_objects = payload.games;
+  if (is_nil_undef(game_objects)) {
+    return /* None */0;
+  } else {
+    var games = map(function (game_object) {
+          return /* record */[
+                  /* name */game_object.name,
+                  /* created_at */game_object.created_at,
+                  /* status */game_object.status
+                ];
+        }, to_list(game_objects));
+    return /* Some */[games];
+  }
+}
+
 function init() {
   var user_name = currentUser;
   if (is_nil_undef(user_name)) {
@@ -3406,12 +3422,12 @@ function init() {
     var channel = _2(Socket[/* channel */2], "lobby", socket);
     var joinCommands = call(function (callbacks) {
           _2(Channel[/* join */0], "lobby", channel).receive("ok", function (x) {
-                  var games = x.games;
-                  if (is_nil_undef(games)) {
+                  var match = lobby_payload_to_game_list(x);
+                  if (match) {
+                    return _1(callbacks[0][/* enqueue */0], /* GamesInitialized */__(2, [match[0]]));
+                  } else {
                     console.log("No games received on join???");
                     return /* () */0;
-                  } else {
-                    return _1(callbacks[0][/* enqueue */0], /* GamesInitialized */__(2, [to_list(games)]));
                   }
                 }).receive("error", function () {
                 console.log("received error");
@@ -3506,14 +3522,7 @@ function update(model, param) {
                 ];
       case 1 : 
           return /* tuple */[
-                  /* record */[
-                    /* new_game_name */model[/* new_game_name */0],
-                    /* games : :: */[
-                      param[0],
-                      model[/* games */1]
-                    ],
-                    /* channel */model[/* channel */2]
-                  ],
+                  model,
                   none
                 ];
       case 2 : 
@@ -3616,7 +3625,7 @@ function view(model) {
                       /* :: */[
                         ul(/* None */0, /* None */0, /* [] */0, map(function (game) {
                                   return li(/* None */0, /* None */0, /* [] */0, /* :: */[
-                                              text$1(game),
+                                              text$1(game[/* name */0]),
                                               /* [] */0
                                             ]);
                                 }, model[/* games */1])),
@@ -3657,6 +3666,7 @@ exports.createNewGameSucceeded = createNewGameSucceeded;
 exports.newGameCreated = newGameCreated;
 exports.gamesInitialized = gamesInitialized;
 exports.createNewGameFailed = createNewGameFailed;
+exports.lobby_payload_to_game_list = lobby_payload_to_game_list;
 exports.init = init;
 exports.update = update;
 exports.subscriptions = subscriptions;

@@ -11,7 +11,6 @@ defmodule Trenches.Lobby do
   end
 
   def create_game(name) do
-    IO.inspect name
     game = Game.new(name)
     case Supervisor.start_child(__MODULE__, [game]) do
       {:ok, _} -> :ok
@@ -19,10 +18,9 @@ defmodule Trenches.Lobby do
     end
   end
 
-  def all_open_games() do
+  def all_games() do
     Supervisor.which_children(__MODULE__)
     |> Enum.map(fn {_, pid, _, _} -> pid end)
-    |> Enum.filter(&(GameServer.open?(&1)))
-    |> Enum.map(&(GameServer.name(&1)))
+    |> Enum.map(&(GameServer.game(&1)))
   end
 end

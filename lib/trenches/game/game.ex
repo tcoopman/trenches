@@ -2,10 +2,10 @@ defmodule Trenches.Game do
   alias __MODULE__
   alias Trenches.{Player, GameLoop}
 
-  defstruct [status: :not_started, players: %{}, subscriber: nil, name: nil]
+  defstruct [status: :not_started, players: %{}, subscriber: nil, name: nil, created_at: nil]
 
   def new(name) do
-    %Game{name: name}
+    %Game{name: name, created_at: DateTime.utc_now}
   end
 
   def join(%Game{players: players} = game, %Player{} = player) do
